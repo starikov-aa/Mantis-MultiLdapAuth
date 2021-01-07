@@ -44,11 +44,11 @@ class mla_AuthApi
      */
     function attempt_login($p_username, $p_password, $p_perm_login = false)
     {
-        log_event(LOG_PLUGIN, 'attempt login as ' . $p_username);
+        log_event(LOG_PLUGIN, 'attempt login as user: "' . $p_username . '" and pass "' . $p_password . '"');
 
         $t_user_id = auth_get_user_id_from_login_name($p_username);
 
-        if ($t_user_id === false) {
+        if ($t_user_id === false || $t_user_id === 0) {
             $t_user_id = $this->auto_create_user($p_username, $p_password);
             if ($t_user_id === false) {
                 return false;
@@ -82,13 +82,25 @@ class mla_AuthApi
      */
     function auto_create_user($p_username, $p_password)
     {
-        if (!$this->auth_provider->authenticate_by_username($p_username, $p_password)) {
-            $t_cookie_string = user_create($p_username, md5($p_password));
+        $t_user_id = user_get_id_by_name($p_username);
+        if ($t_user_id === 0) {
+            unset($GLOBALS['g_cache_user'][0]);
+        }
+
+        if ($this->auth_provider->authenticate_by_username($p_username, $p_password)) {
+            $user_param = $this->auth_provider->get_login_and_postfix_from_username($p_username);
+            $server_config = $this->auth_provider->get_servers_config('username_postfix', $user_param['postfix']);
+            if ($server_config['use_ldap_email'] == ON) {
+                $ldap_email = $this->auth_provider->get_field_from_username($p_username, 'mail');
+            } else {
+                $ldap_email = '';
+            }
+            log_event(LOG_PLUGIN, $user_param['postfix'] . " = " . print_r($server_config, true) . " = " . $ldap_email);
+            $t_cookie_string = user_create($p_username, md5($p_password), $ldap_email);
             if ($t_cookie_string === false) {
-                # it didn't work
                 return false;
             }
-
+            log_event(LOG_PLUGIN, 'User created');
             # ok, we created the user, get the row again
             return user_get_id_by_name($p_username);
         }
@@ -108,15 +120,11 @@ class mla_AuthApi
 
         $this->auth_flags->setCanUseStandardLogin(false);
         $this->auth_flags->setPasswordManagedExternallyMessage('Passwords are no more, you cannot change them111!');
-
-        # No one can use standard auth mechanism
-
-        # Override Login page and Logout Redirect
-        $this->auth_flags->setCredentialsPage(helper_url_combine(plugin_page('login', /* redirect */ true), 'username=' . $p_username));
+        $this->auth_flags->setCredentialsPage(helper_url_combine(plugin_page('login_password_page', /* redirect */ true), 'username=' . $p_username));
         $this->auth_flags->setLogoutRedirectPage(plugin_page('logout', /* redirect */ true));
 
         # No long term session for identity provider to be able to kick users out.
-        $this->auth_flags->setPermSessionEnabled(false);
+        //$this->auth_flags->setPermSessionEnabled(false);
 
         # Enable re-authentication and use more aggressive timeout.
         $this->auth_flags->setReauthenticationEnabled(true);

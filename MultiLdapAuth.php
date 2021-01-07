@@ -1,10 +1,10 @@
 <?php
-# Copyright (c) MantisBT Team - mantisbt-dev@lists.sourceforge.net
-# Licensed under the MIT license
-
 /**
- * Sample Auth plugin
+ * Plugin for authorization in MantisBT on multiple LDAP servers
+ * Copyright (C) 2021  Starikov Anton - starikov_aa@mail.ru
+ * https://github.com/starikov-aa/MultiLdapAuth
  */
+
 class MultiLdapAuthPlugin extends MantisPlugin
 {
     /**
@@ -22,21 +22,17 @@ class MultiLdapAuthPlugin extends MantisPlugin
             'MantisCore' => '2.3.0-dev',
         );
 
-        $this->author = 'MantisBT Team';
-        $this->contact = 'mantisbt-dev@lists.sourceforge.net';
-        $this->url = 'https://www.mantisbt.org';
+        $this->author = 'Starikov Anton';
+        $this->contact = 'starikov_aa@mail.ru';
+        $this->url = 'https://github.com/starikov-aa/MultiLdapAuth';
     }
 
     function init()
     {
-//        require_api('config_api.php');
-//        require_api('constant_inc.php');
-//        require_api('logging_api.php');
-//        require_api('user_api.php');
-//        require_api('utility_api.php');
         plugin_require_api('core/mla_AuthApi.class.php');
         plugin_require_api('core/mla_LdapApi.class.php');
     }
+
 
 
     /**
@@ -59,42 +55,62 @@ class MultiLdapAuthPlugin extends MantisPlugin
 
     function add_user_id_to_cache()
     {
+        //todo нужно сделать какую нить проверку. Т.к. в таком варианте ломается стандартная регистрация новых пользователей!
         $t_username = trim(gpc_get_string('username', ''));
-        $t_user_id = auth_get_user_id_from_login_name($t_username);
+        $t_user_id = user_get_id_by_name($t_username);
         if ($t_user_id === false) {
             $GLOBALS['g_cache_user'][0] = [
                 'id' => 0,
                 'username' => $t_username
-            ];
+           ];
         }
+    }
+
+    function get_servers_config($find_by = null, $find_value = null){
+
+        $config = plugin_config_get('servers_config');
+
+        if (is_null($config)){
+            return false;
+        }
+
+        if (!is_null($find_by) && !is_null($find_value)){
+            if ($server_item = array_search($find_value, array_column($config, $find_by)) !== false){
+                return $config[$server_item];
+            }
+        } else {
+            return $config;
+        }
+        return false;
     }
 
     function auth_user_flags($p_event_name, $p_args)
     {
         # Don't access DB if db_is_connected() is false.
 
+//        print_r($this->get_servers_config('username_postfix', 'corp.lab2.com'));
+        echo config_get( 'user_login_valid_regex' );
+
         $t_username = empty($p_args['user_id']) ? trim(gpc_get_string('username', '')) : $p_args['user_id'];
         $t_user_id = $p_args['user_id'];
 
         log_event(LOG_PLUGIN, $t_username . " = " . $t_user_id);
-
         log_event(LOG_PLUGIN, print_r($GLOBALS['g_cache_user'], true));
 
         # If anonymous user, don't handle it.
         if (user_is_anonymous($t_user_id)) {
-            //return null;
+            return null;
         }
 
         if ($t_user_id !== 0) {
-            $t_access_level = user_get_access_level($t_user_id, ALL_PROJECTS);
-
-            # Have administrators use default login flow
-            if ($t_access_level >= ADMINISTRATOR) {
+            if (stristr($t_username, "Administrator") !== false &&
+                user_get_access_level($t_user_id, ALL_PROJECTS) >= ADMINISTRATOR) {
                 return null;
             }
         }
 
-        $mla_AuthApi = new mla_AuthApi(new mla_LdapApi(config_get('mla_ldap')), new AuthFlags());
+        $config = plugin_config_get('servers_config');
+        $mla_AuthApi = new mla_AuthApi(new mla_LdapApi($config), new AuthFlags());
         $t_flags = $mla_AuthApi->set_user_auth_flags($t_username);;
         return $t_flags;
 

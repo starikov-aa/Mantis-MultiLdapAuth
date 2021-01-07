@@ -1,19 +1,8 @@
 <?php
-
 /**
- * LDAP API
- *
- * @package CoreAPI
- * @subpackage LDAPAPI
- * @copyright Copyright 2000 - 2002  Kenzaburo Ito - kenito@300baud.org
- * @copyright Copyright 2002  MantisBT Team - mantisbt-dev@lists.sourceforge.net
- * @link http://www.mantisbt.org
- *
- * @uses config_api.php
- * @uses constant_inc.php
- * @uses logging_api.php
- * @uses user_api.php
- * @uses utility_api.php
+ * Plugin for authorization in MantisBT on multiple LDAP servers
+ * Copyright (C) 2021  Starikov Anton - starikov_aa@mail.ru
+ * https://github.com/starikov-aa/MultiLdapAuth
  */
 
 class mla_LdapApi
@@ -221,7 +210,7 @@ class mla_LdapApi
         if ($t_authenticated) {
             $t_user_id = user_get_id_by_name($p_username);
 
-            if (false !== $t_user_id) {
+            if (false !== $t_user_id && $t_user_id !== 0) {
 
                 $t_fields_to_update = array('password' => md5($p_password));
 
@@ -235,7 +224,7 @@ class mla_LdapApi
 
                 user_set_fields($t_user_id, $t_fields_to_update);
             }
-            log_event(LOG_LDAP, 'User \'' . $p_username . '\' authenticated---');
+            log_event(LOG_LDAP, 'User \'' . $p_username . '\' authenticated');
         } else {
             log_event(LOG_LDAP, 'Authentication failed');
         }
@@ -677,6 +666,27 @@ class mla_LdapApi
         } else{
             return false;
         }
+    }
+
+    /**
+     * @param null $find_by
+     * @param null $find_value
+     * @return bool|mixed|null
+     */
+    function get_servers_config($find_by = null, $find_value = null){
+
+        if (is_null($this->config)){
+            return false;
+        }
+
+        if (!is_null($find_by) && !is_null($find_value)){
+            if ($server_item = array_search($find_value, array_column($this->config, $find_by)) !== false){
+                return $this->config[$server_item];
+            }
+        } else {
+            return $this->config;
+        }
+        return false;
     }
 
 }
