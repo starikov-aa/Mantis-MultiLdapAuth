@@ -1,0 +1,6 @@
+<?php
+# Copyright (c) MantisBT Team - mantisbt-dev@lists.sourceforge.net
+# Licensed under the MIT license
+
+$s_plugin_MultiLdapAuth_title = 'MultiLdapAuth';
+$s_plugin_MultiLdapAuth_description = 'Multiple LDAP auth.';
