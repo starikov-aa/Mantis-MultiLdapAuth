@@ -41,7 +41,7 @@ if (!empty($f_password) && $mla_AuthApi->attempt_login($f_username, $f_password,
 
     $t_query_text = http_build_query($t_query_args, '', '&');
 
-    $t_uri = auth_login_page($t_query_text);
-
-    print_header_redirect($t_uri);
+    $t_redirect_url = auth_login_page($t_query_text);
 }
+
+print_header_redirect($t_redirect_url);

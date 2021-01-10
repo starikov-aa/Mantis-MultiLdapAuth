@@ -144,4 +144,3 @@ layout_login_page_begin();
 <?php
 
 layout_login_page_end();
-//print_header_redirect( $t_redirect_url );

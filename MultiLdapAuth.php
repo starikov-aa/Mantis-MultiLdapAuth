@@ -93,7 +93,7 @@ class MultiLdapAuthPlugin extends MantisPlugin
 //        print_r($this->get_servers_config('username_postfix', 'corp.lab2.com'));
 //        echo config_get( 'user_login_valid_regex' );
 
-        $t_username = empty($p_args['user_id']) ? trim(gpc_get_string('username', '')) : $p_args['user_id'];
+        $t_username = empty($p_args['username']) ? trim(gpc_get_string('username', '')) : $p_args['username'];
         $t_user_id = $p_args['user_id'];
 
         log_event(LOG_PLUGIN, $t_username . " = " . $t_user_id);
