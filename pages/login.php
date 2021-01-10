@@ -1,8 +1,8 @@
 <?php
 /**
- * Search Plugin for MantisBT
+ * Plugin for authorization in MantisBT on multiple LDAP servers
  * Copyright (C) 2021  Starikov Anton - starikov_aa@mail.ru
- * https://github.com/starikov-aa/mantisbt-search
+ * https://github.com/starikov-aa/MultiLdapAuth
  */
 
 $mla_AuthApi = new mla_AuthApi(new mla_LdapApi(config_get('mla_ldap')), new AuthFlags());

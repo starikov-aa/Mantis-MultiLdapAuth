@@ -1,10 +1,9 @@
 <?php
-# Copyright (c) MantisBT Team - mantisbt-dev@lists.sourceforge.net
-# Licensed under the MIT license
-
-//require_once('core.php');
-//require_api('authentication_api.php');
-//require_api('user_api.php');
+/**
+ * Plugin for authorization in MantisBT on multiple LDAP servers
+ * Copyright (C) 2021  Starikov Anton - starikov_aa@mail.ru
+ * https://github.com/starikov-aa/MultiLdapAuth
+ */
 
 $f_error = gpc_get_bool('error');
 $f_cookie_error = gpc_get_bool('cookie_error');
