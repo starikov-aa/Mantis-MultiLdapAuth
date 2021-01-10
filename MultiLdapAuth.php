@@ -55,14 +55,16 @@ class MultiLdapAuthPlugin extends MantisPlugin
 
     function add_user_id_to_cache()
     {
-        //todo нужно сделать какую нить проверку. Т.к. в таком варианте ломается стандартная регистрация новых пользователей!
-        $t_username = trim(gpc_get_string('username', ''));
-        $t_user_id = user_get_id_by_name($t_username);
-        if ($t_user_id === false) {
-            $GLOBALS['g_cache_user'][0] = [
-                'id' => 0,
-                'username' => $t_username
-           ];
+        $cond = preg_match("#login(_password)?_page#i", $_SERVER['REQUEST_URI']);
+        if ($cond) {
+            $t_username = trim(gpc_get_string('username', ''));
+            $t_user_id = user_get_id_by_name($t_username);
+            if ($t_user_id === false) {
+                $GLOBALS['g_cache_user'][0] = [
+                    'id' => 0,
+                    'username' => $t_username
+                ];
+            }
         }
     }
 
@@ -89,7 +91,7 @@ class MultiLdapAuthPlugin extends MantisPlugin
         # Don't access DB if db_is_connected() is false.
 
 //        print_r($this->get_servers_config('username_postfix', 'corp.lab2.com'));
-        echo config_get( 'user_login_valid_regex' );
+//        echo config_get( 'user_login_valid_regex' );
 
         $t_username = empty($p_args['user_id']) ? trim(gpc_get_string('username', '')) : $p_args['user_id'];
         $t_user_id = $p_args['user_id'];
