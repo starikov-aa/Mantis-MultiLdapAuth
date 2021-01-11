@@ -44,7 +44,8 @@ class MultiLdapAuthPlugin extends MantisPlugin
     {
         $t_hooks = array(
             'EVENT_AUTH_USER_FLAGS' => 'auth_user_flags',
-            'EVENT_CORE_READY' => 'add_user_id_to_cache'
+            'EVENT_CORE_READY' => 'add_user_id_to_cache',
+            'EVENT_LAYOUT_RESOURCES' => 'add_html_headers'
 //            'EVENT_MANAGE_USER_UPDATE_FORM' => 'test22',
             // эти события для редактирования пользователей из админки
 //            'EVENT_MANAGE_USER_PAGE' => 'test22', // тут будем записывать js код который будет блокировать редактирование имени и почты на странице редактирования пользователей
@@ -52,6 +53,11 @@ class MultiLdapAuthPlugin extends MantisPlugin
         );
 
         return $t_hooks;
+    }
+
+    function add_html_headers(){
+        $resources = '<link rel="stylesheet" type="text/css" href="' . plugin_file('mla_style.css') . '" />';
+        return $resources;
     }
 
     function add_user_id_to_cache()
