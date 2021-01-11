@@ -29,6 +29,7 @@ class MultiLdapAuthPlugin extends MantisPlugin
 
     function init()
     {
+        plugin_require_api('core/mla_Tools.class.php');
         plugin_require_api('core/mla_AuthApi.class.php');
         plugin_require_api('core/mla_LdapApi.class.php');
     }
@@ -68,24 +69,6 @@ class MultiLdapAuthPlugin extends MantisPlugin
         }
     }
 
-    function get_servers_config($find_by = null, $find_value = null){
-
-        $config = plugin_config_get('servers_config');
-
-        if (is_null($config)){
-            return false;
-        }
-
-        if (!is_null($find_by) && !is_null($find_value)){
-            if ($server_item = array_search($find_value, array_column($config, $find_by)) !== false){
-                return $config[$server_item];
-            }
-        } else {
-            return $config;
-        }
-        return false;
-    }
-
     function auth_user_flags($p_event_name, $p_args)
     {
         # Don't access DB if db_is_connected() is false.
@@ -111,8 +94,7 @@ class MultiLdapAuthPlugin extends MantisPlugin
             }
         }
 
-        $config = plugin_config_get('servers_config');
-        $mla_AuthApi = new mla_AuthApi(new mla_LdapApi($config), new AuthFlags());
+        $mla_AuthApi = new mla_AuthApi(new mla_LdapApi(), new AuthFlags());
         $t_flags = $mla_AuthApi->set_user_auth_flags($t_username);;
         return $t_flags;
 

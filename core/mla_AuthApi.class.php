@@ -11,7 +11,7 @@ class mla_AuthApi
     /**
      * @var mla_LdapApi|null
      */
-    public $auth_provider = null;
+    public $ldap = null;
 
     /**
      * @var AuthFlags|null
@@ -19,14 +19,20 @@ class mla_AuthApi
     public $auth_flags = null;
 
     /**
+     * @var null
+     */
+    private $tools = null;
+
+    /**
      * mla_AuthApi constructor.
      * @param mla_LdapApi $auth_provider
      * @param AuthFlags $auth_flags
+     * @throws Exception
      */
     function __construct(mla_LdapApi $auth_provider, AuthFlags $auth_flags)
     {
-        log_event(LOG_PLUGIN, 'mla_AuthApi CREATED');
-        $this->auth_provider = $auth_provider;
+        $this->tools = new mla_Tools();
+        $this->ldap = $auth_provider;
         $this->auth_flags = $auth_flags;
     }
 
@@ -62,7 +68,7 @@ class mla_AuthApi
         # check for anonymous login
         if (!user_is_anonymous($t_user_id)) {
             # anonymous login didn't work, so check the password
-            if (!$this->auth_provider->authenticate_by_username($p_username, $p_password)) {
+            if (!$this->ldap->authenticate_by_username($p_username, $p_password)) {
                 user_increment_failed_login_count($t_user_id);
                 return false;
             }
@@ -87,21 +93,19 @@ class mla_AuthApi
             unset($GLOBALS['g_cache_user'][0]);
         }
 
-        if ($this->auth_provider->authenticate_by_username($p_username, $p_password)) {
-            $user_param = $this->auth_provider->get_login_and_postfix_from_username($p_username);
-            $server_config = $this->auth_provider->get_servers_config('username_postfix', $user_param['postfix']);
+        if ($this->ldap->authenticate_by_username($p_username, $p_password)) {
+            $user_param = mla_Tools::get_prefix_and_login_from_username($p_username);
+            $server_config = $this->tools->get_ldap_options_from_username($p_username);
             if ($server_config['use_ldap_email'] == ON) {
-                $ldap_email = $this->auth_provider->get_field_from_username($p_username, 'mail');
+                $ldap_email = $this->ldap->get_field_from_username($p_username, 'mail');
             } else {
                 $ldap_email = '';
             }
-            log_event(LOG_PLUGIN, $user_param['postfix'] . " = " . print_r($server_config, true) . " = " . $ldap_email);
             $t_cookie_string = user_create($p_username, md5($p_password), $ldap_email);
             if ($t_cookie_string === false) {
                 return false;
             }
             log_event(LOG_PLUGIN, 'User created');
-            # ok, we created the user, get the row again
             return user_get_id_by_name($p_username);
         }
 
@@ -114,7 +118,7 @@ class mla_AuthApi
      */
     function set_user_auth_flags($p_username)
     {
-        if ($this->user_is_local($p_username)){
+        if (mla_Tools::user_is_local($p_username)){
             return null;
         }
 
@@ -131,22 +135,6 @@ class mla_AuthApi
         $this->auth_flags->setReauthenticationLifetime(10);
 
         return $this->auth_flags;
-    }
-
-    /**
-     * Check user is local
-     *
-     * @param $p_username
-     * @return bool
-     */
-    function user_is_local($p_username)
-    {
-        if (stristr($p_username, '@') === false) {
-            return true;
-        } else {
-            return false;
-        }
-
     }
 
 

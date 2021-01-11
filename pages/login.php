@@ -5,7 +5,7 @@
  * https://github.com/starikov-aa/MultiLdapAuth
  */
 
-$mla_AuthApi = new mla_AuthApi(new mla_LdapApi(config_get('mla_ldap')), new AuthFlags());
+$mla_AuthApi = new mla_AuthApi(new mla_LdapApi(), new AuthFlags());
 
 $g_cache_ldap_email = array();
 

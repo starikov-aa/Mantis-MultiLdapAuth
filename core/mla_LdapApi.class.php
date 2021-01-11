@@ -7,23 +7,36 @@
 
 class mla_LdapApi
 {
-    // LDAP data source
+    /**
+     * LDAP data source
+     * @var null
+     */
     public $t_ds = null;
 
-    // Is simulation enabled?
+    /**
+     * Is simulation enabled?
+     * @var bool
+     */
     public $simulationEnabled = false;
 
-    // The LDAP config parameters
-    private $config = null;
+    /**
+     * The LDAP config parameters
+     * @var null
+     */
+    private $ldap_config = null;
 
-    // Constructor
-    public function __construct($config)
+    /**
+     * @var null
+     */
+    private $tools = null;
+
+    /**
+     * mla_LdapApi constructor.
+     */
+    public function __construct()
     {
-        if (@array_key_exists('server', $config[0])) {
-            $this->config = $config;
-        } else {
-            log_event(LOG_LDAP, 'Incorrect LDAP settings. Check the $g_ldap variable in the config file.');
-        }
+        $this->tools = new mla_Tools();
+        $this->ldap_config = $this->tools->get_ldap_config();
     }
 
     /**
@@ -105,7 +118,7 @@ class mla_LdapApi
 
         //todo Понять для чего это
         if ($this->t_ds === false) {
-            $authLdap->log_error();
+            $this->log_error();
             trigger_error(ERROR_LDAP_AUTH_FAILED, ERROR);
         }
 
@@ -166,18 +179,18 @@ class mla_LdapApi
             $t_authenticated = $this->simulation_authenticate_by_username($p_username, $p_password);
         } else {
 
-            if (!$t_username_param = $this->get_login_and_postfix_from_username($p_username)){
+            if (!$t_username_param = mla_Tools::get_prefix_and_login_from_username($p_username)){
                 log_event(LOG_LDAP, 'Error getting parameters from username (' . $p_username . ')');
                 return null;
             }
 
             $t_authenticated = false;
 
-            if (!is_null($this->config)) {
+            if (!is_null($this->ldap_config)) {
 
-                foreach ($this->config as $config) {
+                foreach ($this->ldap_config as $config) {
 
-                    if($config['username_postfix'] != $t_username_param['postfix']){
+                    if($config['username_prefix'] != $t_username_param['prefix']){
                         continue;
                     }
 
@@ -214,11 +227,11 @@ class mla_LdapApi
 
                 $t_fields_to_update = array('password' => md5($p_password));
 
-                if (ON == config_get('use_ldap_realname')) {
+                if (ON == $this->tools->get_ldap_options_from_username($p_username)['use_ldap_realname']) {
                     $t_fields_to_update['realname'] = $this->realname($t_user_id);
                 }
 
-                if (ON == config_get('use_ldap_email')) {
+                if (ON == $this->tools->get_ldap_options_from_username($p_username)['use_ldap_email']) {
                     $t_fields_to_update['email'] = $this->email_from_username($p_username);
                 }
 
@@ -433,20 +446,20 @@ class mla_LdapApi
     function get_field_from_username($p_username, $p_field)
     {
         //todo Может замутить другую проверку??
-        if (is_null($this->config)) {
+        if (is_null($this->ldap_config)) {
             return null;
         }
 
-        if (!$t_username_param = $this->get_login_and_postfix_from_username($p_username)){
+        if (!$t_username_param = mla_Tools::get_prefix_and_login_from_username($p_username)){
             log_event(LOG_LDAP, 'Error getting parameters from username (' . $p_username . ') when getting field: ' . $p_field);
             return null;
         }
 
         $t_fieldValue = null;
 
-        foreach ($this->config as $config) {
+        foreach ($this->ldap_config as $config) {
 
-            if($config['username_postfix'] != $t_username_param['postfix']){
+            if($config['username_prefix'] != $t_username_param['prefix']){
                 continue;
             }
 
@@ -589,10 +602,10 @@ class mla_LdapApi
             return $this->simulation_realname_from_username($p_username);
         }
         //todo Исправить. Тут похоже обрабатывается только первый сервер ЛДАП в массиве.
-        if (array_key_exists('realname_field', $this->config)) {
-            $t_ldap_realname_field = $this->config['realname_field'];
-        } elseif (array_key_exists('realname_field', $this->config[0])) {
-            $t_ldap_realname_field = $this->config[0]['realname_field'];
+        if (array_key_exists('realname_field', $this->ldap_config)) {
+            $t_ldap_realname_field = $this->ldap_config['realname_field'];
+        } elseif (array_key_exists('realname_field', $this->ldap_config[0])) {
+            $t_ldap_realname_field = $this->ldap_config[0]['realname_field'];
         }
 
         $t_realname = $this->get_field_from_username($p_username, $t_ldap_realname_field);
@@ -634,59 +647,6 @@ class mla_LdapApi
 
         $g_cache_ldap_email[(int)$p_user_id] = $t_email;
         return $t_email;
-    }
-
-    /**
-     * Get login and postfix from username.
-     *
-     * @param string $p_username
-     * @return array|bool
-     */
-    function get_login_and_postfix_from_username($p_username) {
-        $t_username = explode('@', $p_username);
-        if (count($t_username) == 2){
-            return [
-                'username' => $t_username[0],
-                'postfix' => $t_username[1]
-            ];
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * @param $p_username
-     * @return bool
-     */
-    function get_username_ldap_options($p_username){
-        $t_user_param = $this->get_login_and_postfix_from_username($p_username);
-        $servers_option = array_column($this->config, null, 'username_postfix');
-        if (isset($servers_option[$t_user_param['postfix']])){
-            return isset($servers_option[$p_username]);
-        } else{
-            return false;
-        }
-    }
-
-    /**
-     * @param null $find_by
-     * @param null $find_value
-     * @return bool|mixed|null
-     */
-    function get_servers_config($find_by = null, $find_value = null){
-
-        if (is_null($this->config)){
-            return false;
-        }
-
-        if (!is_null($find_by) && !is_null($find_value)){
-            if ($server_item = array_search($find_value, array_column($this->config, $find_by)) !== false){
-                return $this->config[$server_item];
-            }
-        } else {
-            return $this->config;
-        }
-        return false;
     }
 
 }
