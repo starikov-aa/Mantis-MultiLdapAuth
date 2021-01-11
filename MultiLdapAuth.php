@@ -55,11 +55,36 @@ class MultiLdapAuthPlugin extends MantisPlugin
         return $t_hooks;
     }
 
+    /**
+     * @return string
+     * @throws Exception
+     */
     function add_html_headers(){
         $resources = '<link rel="stylesheet" type="text/css" href="' . plugin_file('mla_style.css') . '" />';
+        $resources .= '<script type="text/javascript" src="' . plugin_file('mla_script.js') . '"></script>';
+        $resources .= $this->add_js_flags();
         return $resources;
     }
 
+    /**
+     * @return string
+     * @throws Exception
+     */
+    function add_js_flags(){
+        $tools = new mla_Tools();
+        $t_userid = gpc_get_string('user_id', null) ?? auth_get_current_user_id();
+        $t_username = user_get_username($t_userid);
+        $ldap_options = $tools->get_ldap_options_from_username($t_username);
+        $flags['user_is_local'] = mla_Tools::user_is_local($t_username) ? ON : OFF;
+        $flags['use_ldap_email'] = $ldap_options['use_ldap_email'] ?? OFF;
+        $flags['use_ldap_realname'] = $ldap_options['use_ldap_realname'] ?? OFF;
+        $html = '<script type="text/javascript">window.mla_user_flags=JSON.parse(\'' . json_encode($flags) . '\');</script>';
+        return $html;
+    }
+
+    /**
+     * @throws \Mantis\Exceptions\ClientException
+     */
     function add_user_id_to_cache()
     {
         $cond = preg_match("#login(_password)?_page#i", $_SERVER['REQUEST_URI']);
@@ -75,6 +100,12 @@ class MultiLdapAuthPlugin extends MantisPlugin
         }
     }
 
+    /**
+     * @param $p_event_name
+     * @param $p_args
+     * @return AuthFlags|null
+     * @throws Exception
+     */
     function auth_user_flags($p_event_name, $p_args)
     {
         # Don't access DB if db_is_connected() is false.
