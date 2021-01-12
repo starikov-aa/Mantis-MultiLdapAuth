@@ -35,7 +35,6 @@ class MultiLdapAuthPlugin extends MantisPlugin
     }
 
 
-
     /**
      * plugin hooks
      * @return array
@@ -59,7 +58,8 @@ class MultiLdapAuthPlugin extends MantisPlugin
      * @return string
      * @throws Exception
      */
-    function add_html_headers(){
+    function add_html_headers()
+    {
         $resources = '<link rel="stylesheet" type="text/css" href="' . plugin_file('mla_style.css') . '" />';
         $resources .= '<script type="text/javascript" src="' . plugin_file('mla_script.js') . '"></script>';
         $resources .= $this->add_js_flags();
@@ -70,16 +70,24 @@ class MultiLdapAuthPlugin extends MantisPlugin
      * @return string
      * @throws Exception
      */
-    function add_js_flags(){
-        $tools = new mla_Tools();
-        $t_userid = gpc_get_string('user_id', null) ?? auth_get_current_user_id();
-        $t_username = user_get_username($t_userid);
-        $ldap_options = $tools->get_ldap_options_from_username($t_username);
-        $flags['user_is_local'] = mla_Tools::user_is_local($t_username) ? ON : OFF;
-        $flags['use_ldap_email'] = $ldap_options['use_ldap_email'] ?? OFF;
-        $flags['use_ldap_realname'] = $ldap_options['use_ldap_realname'] ?? OFF;
-        $html = '<script type="text/javascript">window.mla_user_flags=JSON.parse(\'' . json_encode($flags) . '\');</script>';
-        return $html;
+    function add_js_flags()
+    {
+        if (auth_is_user_authenticated()) {
+            $tools = new mla_Tools();
+            $t_userid = gpc_get_string('user_id', null) ?? auth_get_current_user_id();
+            $t_username = user_get_username($t_userid);
+            $ldap_options = $tools->get_ldap_options_from_username($t_username);
+            $flags['user_is_local'] = mla_Tools::user_is_local($t_username) ? ON : OFF;
+            $flags['use_ldap_email'] = $ldap_options['use_ldap_email'] ?? OFF;
+            $flags['use_ldap_realname'] = $ldap_options['use_ldap_realname'] ?? OFF;
+            $html = '<script type="text/javascript">window.mla_user_flags=JSON.parse(\'' . json_encode($flags) . '\');</script>';
+            return $html;
+        }
+    }
+
+    function check_user_edit_data()
+    {
+
     }
 
     /**
