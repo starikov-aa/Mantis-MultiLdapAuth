@@ -27,6 +27,25 @@ class MultiLdapAuthPlugin extends MantisPlugin
         $this->url = 'https://github.com/starikov-aa/MultiLdapAuth';
     }
 
+    function schema()
+    {
+        $t_table_options = array(
+            'mysql' => 'DEFAULT CHARSET=utf8',
+            'pgsql' => 'WITHOUT OIDS',
+        );
+
+        return [
+            ['CreateTableSQL',
+                [plugin_table('ip_ban'),
+                    "id INT NOT NULL AUTOINCREMENT PRIMARY,
+                    ip TEXT NOT NULL,
+	                attempts TEXT NOT NULL",
+                    $t_table_options
+                ]
+            ]
+        ];
+    }
+
     function init()
     {
         plugin_require_api('core/mla_Tools.class.php');
