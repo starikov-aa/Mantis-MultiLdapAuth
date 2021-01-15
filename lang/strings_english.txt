@@ -4,3 +4,4 @@
 
 $s_plugin_MultiLdapAuth_title = 'MultiLdapAuth';
 $s_plugin_MultiLdapAuth_description = 'Multiple LDAP auth.';
+$s_plugin_MultiLdapAuth_ip_ban_message = 'The number of login attempts has been exceeded. Your address is temporarily blocked.';

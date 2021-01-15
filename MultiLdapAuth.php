@@ -51,7 +51,7 @@ class MultiLdapAuthPlugin extends MantisPlugin
     {
         return [
             'ip_ban_time' => 300,
-            'ip_ban_max_failed_attempts' => config_get_global('max_failed_login_count')
+            'ip_ban_max_failed_attempts' => 5
         ];
     }
 

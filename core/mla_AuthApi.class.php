@@ -135,19 +135,17 @@ class mla_AuthApi
         return $this->auth_flags;
     }
 
-    static function increment_failed_login_user()
+    function increment_failed_login_user()
     {
         $ip_address = mla_Tools::get_user_ip();
         $tbl_name = plugin_table('ip_ban');
         db_param_push();
         $t_query_select = db_query('SELECT * FROM ' . $tbl_name . ' WHERE ip=' . db_param(), [$ip_address]);
-        $t_ip_info = db_fetch_array($t_query_select);
-        if ($t_ip_info && $t_ip_info['attempts'] < config_get_global('max_failed_login_count')) {
+        if (db_result($t_query_select)) {
             db_query('UPDATE ' . $tbl_name . ' SET attempts=attempts+1, last_attempt_time=' . db_param() . ' WHERE ip=' . db_param(), [time(), $ip_address]);
         } else {
             db_query('INSERT INTO ' . $tbl_name . ' (`ip`, `attempts`, `last_attempt_time`) VALUES ("' . $ip_address . '", "1", "' . time() . '")');
         }
-        user_clear_cache(0);
         return true;
     }
 
@@ -190,9 +188,12 @@ class mla_AuthApi
             // Не пускаем. Т.к. кол-во попыток превышено и время бана еще не закончилось
             user_clear_cache(0);
             return false;
+        } else {
+            // Пускаем. Т.к. время бана истекло. И сбрасываем кол-во попыток.
+            self::reset_failed_login_count_to_zero();
+            return true;
         }
 
-        // Пускаем. Т.к. время бана истекло.
         return true;
     }
 }

@@ -7,3 +7,12 @@
 .user-info {
     max-width: 500px;
 }
+
+.mla_ip_ban_message {
+    text-align: center;
+}
+
+#mla_ip_ban_text {
+    padding-top: 30px;
+    font-size: large;
+}

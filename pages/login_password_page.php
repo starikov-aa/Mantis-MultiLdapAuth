@@ -5,8 +5,17 @@
  * https://github.com/starikov-aa/MultiLdapAuth
  */
 
-$mla_AuthApi = new mla_AuthApi(new mla_LdapApi(), new AuthFlags());
-$mla_AuthApi->increment_failed_login_user();
+if (!mla_AuthApi::is_ip_login_request_allowed()) {
+    html_robots_noindex();
+    layout_login_page_begin();
+    $html = '<div class="mla_ip_ban_message">';
+    $html .= '    <div class="login-logo"><img src="'.helper_mantis_url(config_get('logo_image')).'"></div>';
+    $html .= '    <p id="mla_ip_ban_text">'.plugin_lang_get('ip_ban_message').'</p>';
+    $html .= '</div>';
+    echo $html;
+    layout_login_page_end();
+    return;
+}
 
 $f_error = gpc_get_bool('error');
 $f_cookie_error = gpc_get_bool('cookie_error');

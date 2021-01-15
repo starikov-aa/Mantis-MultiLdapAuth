@@ -22,11 +22,13 @@ $t_allow_perm_login = auth_allow_perm_login( $t_user_id, $f_username );
 $f_perm_login	= $t_allow_perm_login && gpc_get_bool( 'perm_login' );
 
 if (!empty($f_password) && $mla_AuthApi->attempt_login($f_username, $f_password, $f_perm_login)) {
-    log_event(LOG_PLUGIN, 'LOGIN IS OK: ' . $f_username . " = " . $f_password);
+    log_event(LOG_PLUGIN, 'LOGIN IS OK: ' . $f_username);
+    $mla_AuthApi->reset_failed_login_count_to_zero();
     session_set('secure_session', $f_secure_session);
     $t_redirect_url = 'login_cookie_test.php?return=' . $t_return;
 } else {
-    log_event(LOG_PLUGIN, 'LOGIN IS FAIL !!!: ' . $f_username . " = " . $f_password);
+    log_event(LOG_PLUGIN, 'LOGIN IS FAIL: ' . $f_username);
+    $mla_AuthApi->increment_failed_login_user();
     $t_query_args = array(
         'error' => 1,
         'username' => $f_username,
