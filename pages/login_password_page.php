@@ -5,6 +5,7 @@
  * https://github.com/starikov-aa/MultiLdapAuth
  */
 
+// Блокируем пользователя
 if (!mla_AuthApi::is_ip_login_request_allowed()) {
     html_robots_noindex();
     layout_login_page_begin();

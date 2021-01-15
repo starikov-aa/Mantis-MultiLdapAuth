@@ -186,6 +186,7 @@ class mla_AuthApi
             return true;
         } elseif (($t_ip_info['last_attempt_time'] + plugin_config_get('ip_ban_time')) > time()) {
             // Не пускаем. Т.к. кол-во попыток превышено и время бана еще не закончилось
+            log_event(LOG_PLUGIN, 'IP ' . $ip_address . ' blocked due to exceeded number of login attempts');
             user_clear_cache(0);
             return false;
         } else {
