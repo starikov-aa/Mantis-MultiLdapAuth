@@ -7,6 +7,7 @@
 
 $mla_AuthApi = new mla_AuthApi(new mla_LdapApi(), new AuthFlags());
 
+
 $g_cache_ldap_email = array();
 
 $f_username		= gpc_get_string( 'username', '' );

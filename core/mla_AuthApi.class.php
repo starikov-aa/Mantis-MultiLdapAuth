@@ -89,9 +89,7 @@ class mla_AuthApi
     function auto_create_user($p_username, $p_password)
     {
         $t_user_id = user_get_id_by_name($p_username);
-        if ($t_user_id === 0) {
-            unset($GLOBALS['g_cache_user'][0]);
-        }
+        user_clear_cache($t_user_id);
 
         if ($this->ldap->authenticate_by_username($p_username, $p_password)) {
             $user_param = mla_Tools::get_prefix_and_login_from_username($p_username);
@@ -118,7 +116,7 @@ class mla_AuthApi
      */
     function set_user_auth_flags($p_username)
     {
-        if (mla_Tools::user_is_local($p_username)){
+        if (mla_Tools::user_is_local($p_username)) {
             return null;
         }
 
@@ -137,5 +135,64 @@ class mla_AuthApi
         return $this->auth_flags;
     }
 
+    static function increment_failed_login_user()
+    {
+        $ip_address = mla_Tools::get_user_ip();
+        $tbl_name = plugin_table('ip_ban');
+        db_param_push();
+        $t_query_select = db_query('SELECT * FROM ' . $tbl_name . ' WHERE ip=' . db_param(), [$ip_address]);
+        $t_ip_info = db_fetch_array($t_query_select);
+        if ($t_ip_info && $t_ip_info['attempts'] < config_get_global('max_failed_login_count')) {
+            db_query('UPDATE ' . $tbl_name . ' SET attempts=attempts+1, last_attempt_time=' . db_param() . ' WHERE ip=' . db_param(), [time(), $ip_address]);
+        } else {
+            db_query('INSERT INTO ' . $tbl_name . ' (`ip`, `attempts`, `last_attempt_time`) VALUES ("' . $ip_address . '", "1", "' . time() . '")');
+        }
+        user_clear_cache(0);
+        return true;
+    }
 
+    /**
+     * Reset to zero the failed login attempts
+     *
+     * @return boolean always true
+     */
+    static function reset_failed_login_count_to_zero()
+    {
+        $ip_address = mla_Tools::get_user_ip();
+        $tbl_name = plugin_table('ip_ban');
+        db_param_push();
+        db_query('DELETE FROM ' . $tbl_name . ' WHERE ip=' . db_param(), [$ip_address]);
+        return true;
+    }
+
+    /**
+     * Get failed login attempts
+     *
+     * @return boolean
+     */
+    static function is_ip_login_request_allowed()
+    {
+        $ip_address = mla_Tools::get_user_ip();
+        $tbl_name = plugin_table('ip_ban');
+        db_param_push();
+        $t_query_select = db_query('SELECT * FROM ' . $tbl_name . ' WHERE ip=' . db_param(), [$ip_address]);
+        $t_ip_info = db_fetch_array($t_query_select);
+
+        // ip нету в базе, пускаем
+        if (!$t_ip_info) {
+            return true;
+        }
+
+        if ($t_ip_info['attempts'] < plugin_config_get('ip_ban_max_failed_attempts')) {
+            // Пускаем пользователя т.к. кол-во попыток еще не превышено
+            return true;
+        } elseif (($t_ip_info['last_attempt_time'] + plugin_config_get('ip_ban_time')) > time()) {
+            // Не пускаем. Т.к. кол-во попыток превышено и время бана еще не закончилось
+            user_clear_cache(0);
+            return false;
+        }
+
+        // Пускаем. Т.к. время бана истекло.
+        return true;
+    }
 }

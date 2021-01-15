@@ -5,6 +5,9 @@
  * https://github.com/starikov-aa/MultiLdapAuth
  */
 
+$mla_AuthApi = new mla_AuthApi(new mla_LdapApi(), new AuthFlags());
+$mla_AuthApi->increment_failed_login_user();
+
 $f_error = gpc_get_bool('error');
 $f_cookie_error = gpc_get_bool('cookie_error');
 $f_return = string_sanitize_url(gpc_get_string('return', ''));

@@ -40,13 +40,14 @@ class mla_Tools
      * @param null $find_value
      * @return bool|string|null
      */
-    function get_ldap_config($find_by = null, $find_value = null){
-        if (is_null($this->ldap_config)){
+    function get_ldap_config($find_by = null, $find_value = null)
+    {
+        if (is_null($this->ldap_config)) {
             return false;
         }
 
-        if (!is_null($find_by) && !is_null($find_value)){
-            if ($server_item = array_search($find_value, array_column($this->ldap_config, $find_by)) !== false){
+        if (!is_null($find_by) && !is_null($find_value)) {
+            if ($server_item = array_search($find_value, array_column($this->ldap_config, $find_by)) !== false) {
                 return $this->ldap_config[$server_item];
             }
         } else {
@@ -77,9 +78,10 @@ class mla_Tools
      * @param string $p_username
      * @return array|bool
      */
-    public static function get_prefix_and_login_from_username($p_username) {
+    public static function get_prefix_and_login_from_username($p_username)
+    {
         $t_username = explode('\\', $p_username);
-        if (count($t_username) == 2){
+        if (count($t_username) == 2) {
             return [
                 'prefix' => $t_username[0],
                 'username' => $t_username[1]
@@ -93,15 +95,24 @@ class mla_Tools
      * @param $p_username
      * @return bool
      */
-    function get_ldap_options_from_username($p_username){
+    function get_ldap_options_from_username($p_username)
+    {
         $t_user_param = self::get_prefix_and_login_from_username($p_username);
 
         $servers_option = $this->get_ldap_config('username_prefix', $t_user_param['prefix']);
-        if ($servers_option){
+        if ($servers_option) {
             return $servers_option;
-        } else{
+        } else {
             return false;
         }
+    }
+
+    /**
+     * @return mixed
+     */
+    static function get_user_ip()
+    {
+        return filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP);
     }
 
 }

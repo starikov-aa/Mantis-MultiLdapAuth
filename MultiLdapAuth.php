@@ -39,10 +39,19 @@ class MultiLdapAuthPlugin extends MantisPlugin
                 [plugin_table('ip_ban'),
                     "id INT NOT NULL AUTOINCREMENT PRIMARY,
                     ip TEXT NOT NULL,
-	                attempts TEXT NOT NULL",
+	                attempts TEXT NOT NULL,
+	                last_attempt_time INT NOT NULL DEFAULT '1'",
                     $t_table_options
                 ]
             ]
+        ];
+    }
+
+    function config()
+    {
+        return [
+            'ip_ban_time' => 300,
+            'ip_ban_max_failed_attempts' => config_get_global('max_failed_login_count')
         ];
     }
 
