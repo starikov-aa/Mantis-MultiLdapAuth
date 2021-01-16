@@ -5,3 +5,5 @@
 $s_plugin_MultiLdapAuth_title = 'MultiLdapAuth';
 $s_plugin_MultiLdapAuth_description = 'Multiple LDAP auth.';
 $s_plugin_MultiLdapAuth_ip_ban_message = 'Превышено количество попыток входа. Ваш адрес временно заблокирован.';
+$s_plugin_MultiLdapAuth_msg_yes = 'Да';
+$s_plugin_MultiLdapAuth_msg_no = 'Нет';
