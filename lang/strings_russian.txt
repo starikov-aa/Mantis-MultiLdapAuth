@@ -7,3 +7,17 @@ $s_plugin_MultiLdapAuth_description = 'Multiple LDAP auth.';
 $s_plugin_MultiLdapAuth_ip_ban_message = 'Превышено количество попыток входа. Ваш адрес временно заблокирован.';
 $s_plugin_MultiLdapAuth_msg_yes = 'Да';
 $s_plugin_MultiLdapAuth_msg_no = 'Нет';
+$s_plugin_MultiLdapAuth_config_server_edit_server = 'Сeрвер (ldap uri)';
+$s_plugin_MultiLdapAuth_config_server_edit_root_dn = 'Root DN';
+$s_plugin_MultiLdapAuth_config_server_edit_bind_dn = 'Bind DN';
+$s_plugin_MultiLdapAuth_config_server_edit_bind_password = 'Bind password';
+$s_plugin_MultiLdapAuth_config_server_edit_uid_field = 'Uid field';
+$s_plugin_MultiLdapAuth_config_server_edit_realname_field = 'Real name field';
+$s_plugin_MultiLdapAuth_config_server_edit_network_timeout = 'Таймаут, сек';
+$s_plugin_MultiLdapAuth_config_server_edit_protocol_version = 'Версия протокола';
+$s_plugin_MultiLdapAuth_config_server_edit_follow_referrals = 'Follow Referrals';
+$s_plugin_MultiLdapAuth_config_server_edit_username_prefix = 'Префикс пользователя';
+$s_plugin_MultiLdapAuth_config_server_edit_use_ldap_email = 'Использовать email из LDAP';
+$s_plugin_MultiLdapAuth_config_server_edit_use_ldap_realname = 'Использовать имя из LDAP';
+$s_plugin_MultiLdapAuth_config_server_edit_autocreate_user = 'Автоматически создавать пользователя';
+

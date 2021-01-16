@@ -5,4 +5,7 @@
  * https://github.com/starikov-aa/MultiLdapAuth
  */
 
+auth_reauthenticate();
+access_ensure_global_level( config_get( 'manage_site_threshold' ) );
+
 
