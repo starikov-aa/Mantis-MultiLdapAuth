@@ -50,7 +50,11 @@ class mla_AuthApi
      */
     function attempt_login($p_username, $p_password, $p_perm_login = false)
     {
-        log_event(LOG_PLUGIN, 'attempt login as user: "' . $p_username . '" and pass "' . $p_password . '"');
+        if (!self::is_ip_login_request_allowed()) {
+            return false;
+        }
+
+        log_event(LOG_PLUGIN, 'attempt login as user: ' . $p_username);
 
         $t_user_id = auth_get_user_id_from_login_name($p_username);
 
@@ -61,15 +65,11 @@ class mla_AuthApi
             }
         }
 
-        if (!user_is_login_request_allowed($t_user_id)) {
-            return false;
-        }
-
         # check for anonymous login
         if (!user_is_anonymous($t_user_id)) {
             # anonymous login didn't work, so check the password
             if (!$this->ldap->authenticate_by_username($p_username, $p_password)) {
-                user_increment_failed_login_count($t_user_id);
+                $this->increment_failed_login_user();
                 return false;
             }
         }
@@ -103,8 +103,10 @@ class mla_AuthApi
             if ($t_cookie_string === false) {
                 return false;
             }
-            log_event(LOG_PLUGIN, 'User created');
+            log_event(LOG_PLUGIN, 'User created: ' . $p_username);
             return user_get_id_by_name($p_username);
+        } else {
+            $this->increment_failed_login_user();
         }
 
         return false;
