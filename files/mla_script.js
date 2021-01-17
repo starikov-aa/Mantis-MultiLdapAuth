@@ -4,13 +4,32 @@
  * https://github.com/starikov-aa/MultiLdapAuth
  */
 
+const AJAX_URL = 'plugin.php?page=MultiLdapAuth/ajax';
+
 $(document).ready(function () {
-    disable_user_field();
-    disable_admin_field();
+    if(typeof(window.mla_user_flags) != "undefined"){
+        disable_user_field();
+        disable_admin_field();
+    }
+    check_bt_collapse();
 });
+
+function check_bt_collapse() {
+    $('input').each(function () {
+        if ($(this).data('toggle') == 'collapse') {
+            let elem = $($(this).data('target'));
+            if ($(this).attr('checked')){
+                elem.collapse('show');
+            } else {
+                elem.collapse('hide');
+            }
+        }
+    })
+}
 
 function disable_user_field() {
     let flags = window.mla_user_flags;
+
     if (!flags.user_is_local){
         if (flags.use_ldap_email) {
             $('#email-field').attr('disabled', 'disabled')
@@ -39,4 +58,10 @@ function disable_admin_field() {
         }
         elem.map(e => $(e).attr('disabled', 'disabled'))
     }
+}
+
+function mla_load_server_settings() {
+    $.getJSON(AJAX_URL, {'action': 'get_server_settings'}, function (data) {
+
+    })
 }

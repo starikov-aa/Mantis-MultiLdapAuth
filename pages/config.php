@@ -35,9 +35,15 @@ foreach ($servers_config as $server) {
 <head>
     <meta charset="UTF-8">
     <title>Настройки плагина MultiLdapAuth</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+          integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+            integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
+            crossorigin="anonymous"></script>
+    <script type="text/javascript" src="/mantis/plugin_file.php?file=MultiLdapAuth/mla_script.js"></script>
 </head>
 <body>
 
@@ -51,43 +57,43 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
 ?>
 
 <div style="margin: 20px;">
-    <hr class="mb-4">
     <h4 class="md-6">Общие настройки</h4>
     <hr class="mb-4">
     <form>
         <div class="form-group row">
             <div class="col-sm-10">
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="ip_ban_enable">
+                    <input class="form-check-input" type="checkbox" id="ip_ban_enable" data-toggle='collapse'
+                           data-target='#ip_ban_settings' <?=mla_Tools::convert_on_to_checked(plugin_config_get('ip_ban_enable'));?>>
                     <label class="form-check-label" for="ip_ban_enable">
                         Включить блокировку по IP
                     </label>
                 </div>
             </div>
         </div>
-        <div class="form-group row">
-            <label for="ip_ban_max_failed_attempts" class="col-sm-2 col-form-label">Максимальное количество
-                попыток</label>
-            <div class="col-sm-1">
-                <input type="text" class="form-control" id="ip_ban_max_failed_attempts"
-                       value="<?= plugin_config_get('ip_ban_max_failed_attempts'); ?>">
+        <div id="ip_ban_settings" class="collapse">
+            <div class="form-group row">
+                <label for="ip_ban_max_failed_attempts" class="col-sm-2 col-form-label">Максимальное количество
+                    попыток</label>
+                <div class="col-sm-1">
+                    <input type="text" class="form-control" id="ip_ban_max_failed_attempts"
+                           value="<?= plugin_config_get('ip_ban_max_failed_attempts'); ?>">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="ip_ban_time" class="col-sm-2 col-form-label">Время блокировки, сек</label>
+                <div class="col-sm-1">
+                    <input type="text" class="form-control" id="ip_ban_time"
+                           value="<?= plugin_config_get('ip_ban_time'); ?>">
+                </div>
             </div>
         </div>
-        <div class="form-group row">
-            <label for="ip_ban_time" class="col-sm-2 col-form-label">Время блокировки, сек</label>
-            <div class="col-sm-1">
-                <input type="text" class="form-control" id="ip_ban_time"
-                       value="<?= plugin_config_get('ip_ban_time'); ?>">
-            </div>
-        </div>
-
         <div class="form-group row">
             <div class="col-sm-10">
                 <button type="submit" class="btn btn-primary">Сохранить</button>
             </div>
         </div>
     </form>
-    <hr class="mb-4">
     <h4 class="md-6">Настройки серверов LDAP</h4>
     <hr class="mb-4">
     <div class="form-group row">
@@ -114,7 +120,8 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
 </div>
 
 <!-- Modal -->
-<div class="modal fade" id="editServerSettings" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+<div class="modal fade" id="editServerSettings" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -125,28 +132,32 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
             </div>
             <div class="modal-body">
                 <div class="form-group row">
-                    <label for="ip_ban_max_failed_attempts" class="col-sm-5 col-form-label"><?=plugin_lang_get('config_server_edit_server');?></label>
+                    <label for="ip_ban_max_failed_attempts"
+                           class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_server'); ?></label>
                     <div class="col-sm-5">
                         <input type="text" class="form-control" id="ip_ban_max_failed_attempts"
                                value="<?= plugin_config_get('ip_ban_max_failed_attempts'); ?>">
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="ip_ban_max_failed_attempts" class="col-sm-5 col-form-label"><?=plugin_lang_get('config_server_edit_root_dn');?></label>
+                    <label for="ip_ban_max_failed_attempts"
+                           class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_root_dn'); ?></label>
                     <div class="col-sm-5">
                         <input type="text" class="form-control" id="ip_ban_max_failed_attempts"
                                value="<?= plugin_config_get('ip_ban_max_failed_attempts'); ?>">
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="ip_ban_max_failed_attempts" class="col-sm-5 col-form-label"><?=plugin_lang_get('config_server_edit_bind_dn');?></label>
+                    <label for="ip_ban_max_failed_attempts"
+                           class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_bind_dn'); ?></label>
                     <div class="col-sm-5">
                         <input type="text" class="form-control" id="ip_ban_max_failed_attempts"
                                value="<?= plugin_config_get('ip_ban_max_failed_attempts'); ?>">
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="ip_ban_max_failed_attempts" class="col-sm-5 col-form-label"><?=plugin_lang_get('config_server_edit_bind_password');?></label>
+                    <label for="ip_ban_max_failed_attempts"
+                           class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_bind_password'); ?></label>
                     <div class="col-sm-5">
                         <input type="text" class="form-control" id="ip_ban_max_failed_attempts"
                                value="<?= plugin_config_get('ip_ban_max_failed_attempts'); ?>">
@@ -154,42 +165,48 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                 </div>
 
                 <div class="form-group row">
-                    <label for="ip_ban_max_failed_attempts" class="col-sm-5 col-form-label"><?=plugin_lang_get('config_server_edit_uid_field');?></label>
+                    <label for="ip_ban_max_failed_attempts"
+                           class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_uid_field'); ?></label>
                     <div class="col-sm-5">
                         <input type="text" class="form-control" id="ip_ban_max_failed_attempts"
                                value="<?= plugin_config_get('ip_ban_max_failed_attempts'); ?>">
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="ip_ban_max_failed_attempts" class="col-sm-5 col-form-label"><?=plugin_lang_get('config_server_edit_realname_field');?></label>
+                    <label for="ip_ban_max_failed_attempts"
+                           class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_realname_field'); ?></label>
                     <div class="col-sm-5">
                         <input type="text" class="form-control" id="ip_ban_max_failed_attempts"
                                value="<?= plugin_config_get('ip_ban_max_failed_attempts'); ?>">
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="ip_ban_max_failed_attempts" class="col-sm-5 col-form-label"><?=plugin_lang_get('config_server_edit_network_timeout');?></label>
+                    <label for="ip_ban_max_failed_attempts"
+                           class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_network_timeout'); ?></label>
                     <div class="col-sm-5">
                         <input type="text" class="form-control" id="ip_ban_max_failed_attempts"
                                value="<?= plugin_config_get('ip_ban_max_failed_attempts'); ?>">
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="ip_ban_max_failed_attempts" class="col-sm-5 col-form-label"><?=plugin_lang_get('config_server_edit_protocol_version');?></label>
+                    <label for="ip_ban_max_failed_attempts"
+                           class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_protocol_version'); ?></label>
                     <div class="col-sm-5">
                         <input type="text" class="form-control" id="ip_ban_max_failed_attempts"
                                value="<?= plugin_config_get('ip_ban_max_failed_attempts'); ?>">
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="ip_ban_max_failed_attempts" class="col-sm-5 col-form-label"><?=plugin_lang_get('config_server_edit_follow_referrals');?></label>
+                    <label for="ip_ban_max_failed_attempts"
+                           class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_follow_referrals'); ?></label>
                     <div class="col-sm-5">
                         <input type="text" class="form-control" id="ip_ban_max_failed_attempts"
                                value="<?= plugin_config_get('ip_ban_max_failed_attempts'); ?>">
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="ip_ban_max_failed_attempts" class="col-sm-5 col-form-label"><?=plugin_lang_get('config_server_edit_username_prefix');?></label>
+                    <label for="ip_ban_max_failed_attempts"
+                           class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_username_prefix'); ?></label>
                     <div class="col-sm-5">
                         <input type="text" class="form-control" id="ip_ban_max_failed_attempts"
                                value="<?= plugin_config_get('ip_ban_max_failed_attempts'); ?>">
@@ -200,7 +217,7 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="ip_ban_enable">
                             <label class="form-check-label" for="ip_ban_enable">
-                                <?=plugin_lang_get('config_server_edit_use_ldap_email');?>
+                                <?= plugin_lang_get('config_server_edit_use_ldap_email'); ?>
                             </label>
                         </div>
                     </div>
@@ -210,7 +227,7 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="ip_ban_enable">
                             <label class="form-check-label" for="ip_ban_enable">
-                                <?=plugin_lang_get('config_server_edit_use_ldap_realname');?>
+                                <?= plugin_lang_get('config_server_edit_use_ldap_realname'); ?>
                             </label>
                         </div>
                     </div>
@@ -220,7 +237,7 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="ip_ban_enable">
                             <label class="form-check-label" for="ip_ban_enable">
-                                <?=plugin_lang_get('config_server_edit_autocreate_user');?>
+                                <?= plugin_lang_get('config_server_edit_autocreate_user'); ?>
                             </label>
                         </div>
                     </div>
@@ -236,7 +253,8 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
 
 
 <!-- Modal -->
-<div class="modal fade" id="DeleteServerSettings" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+<div class="modal fade" id="DeleteServerSettings" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">

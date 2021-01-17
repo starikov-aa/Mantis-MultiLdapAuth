@@ -115,4 +115,8 @@ class mla_Tools
         return filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP);
     }
 
+    static function convert_on_to_checked($value){
+        return $value == 1 ? 'checked' : '';
+    }
+
 }
