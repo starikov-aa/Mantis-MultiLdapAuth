@@ -15,7 +15,7 @@ class MultiLdapAuthPlugin extends MantisPlugin
     {
         $this->name = plugin_lang_get('title');
         $this->description = plugin_lang_get('description');
-        $this->page = '';
+        $this->page = 'config';
 
         $this->version = '0.1';
         $this->requires = array(
@@ -73,8 +73,7 @@ class MultiLdapAuthPlugin extends MantisPlugin
         $t_hooks = array(
             'EVENT_AUTH_USER_FLAGS' => 'auth_user_flags',
             'EVENT_CORE_READY' => 'add_user_id_to_cache',
-            'EVENT_LAYOUT_RESOURCES' => 'add_html_headers',
-            'EVENT_MENU_MANAGE' => 'add_link_to_config'
+            'EVENT_LAYOUT_RESOURCES' => 'add_html_headers'
 //            'EVENT_MANAGE_USER_UPDATE_FORM' => 'test22',
             // эти события для редактирования пользователей из админки
 //            'EVENT_MANAGE_USER_PAGE' => 'test22', // тут будем записывать js код который будет блокировать редактирование имени и почты на странице редактирования пользователей
@@ -82,13 +81,6 @@ class MultiLdapAuthPlugin extends MantisPlugin
         );
 
         return $t_hooks;
-    }
-
-    function add_link_to_config()
-    {
-        return [
-            '<a href="'.plugin_page('config').'">mla_config</a>'
-        ];
     }
 
     /**
