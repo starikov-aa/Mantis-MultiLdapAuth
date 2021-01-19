@@ -40,7 +40,7 @@ if (!preg_match(config_get_global('user_login_valid_regex'), 'domen\user'))
     echo '<div class="alert alert-danger" role="alert">
 Не правильная конфигруация парамера $g_user_login_valid_regex. <br>
 Установите в конфиге: <br>
-$g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d\\\\\-\.+_ ]+)$/i"; <br>
+$g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d\\\\\\-\.+_ ]+)$/i"; <br>
 </div>';
 ?>
     <div style="margin: 20px;">
