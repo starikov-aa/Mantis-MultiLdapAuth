@@ -11,8 +11,8 @@ if (!mla_AuthApi::is_ip_login_request_allowed()) {
     html_robots_noindex();
     layout_login_page_begin();
     $html = '<div class="mla_ip_ban_message">';
-    $html .= '    <div class="login-logo"><img src="'.helper_mantis_url(config_get('logo_image')).'"></div>';
-    $html .= '    <p id="mla_ip_ban_text">'.plugin_lang_get('ip_ban_message').'</p>';
+    $html .= '    <div class="login-logo"><img src="' . helper_mantis_url(config_get('logo_image')) . '"></div>';
+    $html .= '    <p id="mla_ip_ban_text">' . plugin_lang_get('ip_ban_message') . '</p>';
     $html .= '</div>';
     echo $html;
     layout_login_page_end();
@@ -27,6 +27,8 @@ $f_reauthenticate = gpc_get_bool('reauthenticate', false);
 $f_perm_login = gpc_get_bool('perm_login', false);
 $f_secure_session = gpc_get_bool('secure_session', false);
 $f_secure_session_cookie = gpc_get_cookie(config_get_global('cookie_prefix') . '_secure_session', null);
+//$f_domen = gpc_get_string('domen', '');
+//$f_username = empty($f_domen) ? $f_username : $f_domen . '\\' . $f_username;
 
 # Set username to blank if invalid to prevent possible XSS exploits
 $t_username = auth_prepare_username($f_username);
