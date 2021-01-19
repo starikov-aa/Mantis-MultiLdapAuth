@@ -59,7 +59,7 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                 <div class="form-group row">
                     <div class="col-sm-10">
                         <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
-                                data-target="#editServerSettings">
+                                data-target="#editServerSettings" data-action="add">
                             Добавить сервер
                         </button>
                     </div>
@@ -122,6 +122,14 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
         </div>
     </div>
 
+    <div class="spinner">
+        <div class="rect1"></div>
+        <div class="rect2"></div>
+        <div class="rect3"></div>
+        <div class="rect4"></div>
+        <div class="rect5"></div>
+    </div>
+
     <!-- Modal -->
     <div class="modal fade" id="editServerSettings" tabindex="-1" role="dialog"
          aria-labelledby="exampleModalCenterTitle"
@@ -134,7 +142,7 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form id="server_settings" method="post">
+                <form id="server_settings" method="post" name="server_settings">
                     <div class="modal-body">
                         <div class="form-group row">
                             <label for="server"
@@ -154,7 +162,7 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                             <label for="root_dn"
                                    class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_bind_dn'); ?></label>
                             <div class="col-sm-5">
-                                <input type="text" class="form-control" id="bind_dn" name="bind_dn">
+                                <input type="text" class="form-control" id="bind_dn" name="bind_dn" value="test">
                             </div>
                         </div>
                         <div class="form-group row">
@@ -211,7 +219,7 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                             <div class="col-sm-10">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" id="use_ldap_email"
-                                           name="use_ldap_email">
+                                           name="use_ldap_email" value="1">
                                     <label class="form-check-label" for="use_ldap_email">
                                         <?= plugin_lang_get('config_server_edit_use_ldap_email'); ?>
                                     </label>
@@ -221,8 +229,9 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                         <div class="form-group row">
                             <div class="col-sm-10">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="use_ldap_realname">
-                                    <label class="form-check-label" for="use_ldap_realname" name="use_ldap_realname">
+                                    <input class="form-check-input" type="checkbox" id="use_ldap_realname"
+                                           name="use_ldap_realname" value="1">
+                                    <label class="form-check-label" for="use_ldap_realname">
                                         <?= plugin_lang_get('config_server_edit_use_ldap_realname'); ?>
                                     </label>
                                 </div>
@@ -231,8 +240,9 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                         <div class="form-group row">
                             <div class="col-sm-10">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="autocreate_user">
-                                    <label class="form-check-label" for="autocreate_user" name="autocreate_user">
+                                    <input class="form-check-input" type="checkbox" id="autocreate_user"
+                                           name="autocreate_user" value="1">
+                                    <label class="form-check-label" for="autocreate_user">
                                         <?= plugin_lang_get('config_server_edit_autocreate_user'); ?>
                                     </label>
                                 </div>
@@ -242,7 +252,7 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
+                <button type="button" class="btn btn-primary" id="save_srv_set">Save changes</button>
             </div>
         </div>
     </div>
@@ -294,9 +304,26 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
             put_servers_settings($(this).data('username-prefix'));
         });
 
-        $(function () {
-            console.log(new FormData($('#server_settings')[0]));
+        $('#save_srv_set').click(function () {
+            let f = new FormData($('#server_settings')[0]);
+            $.ajax({
+                url: '/mantis/plugin.php?page=MultiLdapAuth/ajax',
+                type: 'POST',
+                data: f,
+                processData: false,  // Сообщить jQuery не передавать эти данные
+                contentType: false   // Сообщить jQuery не передавать тип контента
+            });
         })
+
+        var loading = $('.spinner').hide();
+        $(document)
+            .ajaxStart(function () {
+                loading.show();
+            })
+            .ajaxStop(function () {
+                loading.hide();
+            });
+
 
     </script>
 

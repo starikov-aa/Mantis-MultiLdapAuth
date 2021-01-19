@@ -38,17 +38,19 @@ class mla_Tools
     /**
      * @param null $find_by
      * @param null $find_value
+     * @param bool $return_index
      * @return bool|string|null
      */
-    function get_ldap_config($find_by = null, $find_value = null)
+    function get_ldap_config($find_by = null, $find_value = null, $return_index = false)
     {
         if (is_null($this->ldap_config)) {
             return false;
         }
 
         if (!is_null($find_by) && !is_null($find_value)) {
-            if ($server_item = array_search($find_value, array_column($this->ldap_config, $find_by)) !== false) {
-                return $this->ldap_config[$server_item];
+            $server_item = array_search($find_value, array_column($this->ldap_config, $find_by));
+            if ($server_item !== false) {
+                return $return_index ? $server_item : $this->ldap_config[$server_item];
             }
         } else {
             return $this->ldap_config;
@@ -115,8 +117,51 @@ class mla_Tools
         return filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP);
     }
 
-    static function convert_on_to_checked($value){
+    static function convert_on_to_checked($value)
+    {
         return $value == 1 ? 'checked' : '';
+    }
+
+    function save_server_settings()
+    {
+        $result = [];
+        $allow_fields = [
+            'action',
+            'server',
+            'root_dn',
+            'bind_dn',
+            'bind_passwd',
+            'uid_field',
+            'realname_field',
+            'network_timeout',
+            'network_timeout',
+            'protocol_version',
+            'follow_referrals',
+            'username_prefix',
+            'use_ldap_email',
+            'use_ldap_realname',
+            'autocreate_user'
+        ];
+
+        foreach ($_POST as $k => $v) {
+            if (in_array($k, $allow_fields)) {
+                $result[$k] = $v;
+            }
+        }
+
+        $conf_id = $this->get_ldap_config('username_prefix', $_POST['username_prefix'], true);
+
+        if (is_int($conf_id)){
+            $this->ldap_config[$conf_id] = $result;
+        } else {
+            $this->ldap_config[] = $result;
+        }
+
+        plugin_config_set('ldap_config', $this->ldap_config);
+    }
+
+    function delete_server_settings(){
+
     }
 
 }
