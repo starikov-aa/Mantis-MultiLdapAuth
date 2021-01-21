@@ -14,7 +14,7 @@ layout_page_begin('manage_overview_page.php');
 
 print_manage_menu('manage_plugin_page.php');
 
-$servers_config = mla_DB::get_servers_config();
+$servers_config = mla_ServerConfig::get_servers_config();
 
 $tbl_lines = "";
 foreach ($servers_config as $server) {
@@ -307,7 +307,7 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
     </div>
 
     <script type="application/javascript">
-        let servers_settings = '<?=json_encode(mla_DB::get_servers_config())?>'; //
+        let servers_settings = '<?=json_encode(mla_ServerConfig::get_servers_config())?>'; //
 
         $('#save_general_settings').click(function () {
             let form_data = new FormData($(this).closest("form")[0]);

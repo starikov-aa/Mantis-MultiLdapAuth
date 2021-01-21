@@ -1,7 +1,7 @@
 <?php
 
 
-class mla_DB
+class mla_ServerConfig
 {
     const SERVER_SETTINGS_TABLE = 'server_settings';
 
