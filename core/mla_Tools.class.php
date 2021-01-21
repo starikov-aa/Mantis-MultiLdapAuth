@@ -126,7 +126,7 @@ class mla_Tools
     {
         $result = [];
         $allow_fields = [
-            'action',
+            'id',
             'server',
             'root_dn',
             'bind_dn',
@@ -140,7 +140,8 @@ class mla_Tools
             'username_prefix',
             'use_ldap_email',
             'use_ldap_realname',
-            'autocreate_user'
+            'autocreate_user',
+            'default_new_user_project'
         ];
 
         foreach ($_POST as $k => $v) {

@@ -29,10 +29,15 @@ foreach ($servers_config as $server) {
             <td>" . $use_email . "</td>
             <td>" . $use_realname . "</td>
             <td>" . $autocreate_user . "</td>
-            <td><a href=\"#editServerSettings\" data-toggle=\"modal\" data-username-prefix='" . $server['username_prefix'] . "'>✏</a>&nbsp;
-            <a href=\"#DeleteServerSettings\" data-toggle=\"modal\" data-username-prefix='" . $server['username_prefix'] . "'>❌</a></td></tr>";
+            <td>" . project_get_name($server['default_new_user_project'], false) . "</td>
+            <td><a href=\"#editServerSettings\" data-toggle=\"modal\" data-id='" . $server['id'] . "'>✏</a>&nbsp;
+            <a href=\"#DeleteServerSettings\" data-toggle=\"modal\" data-id='" . $server['id'] . "'>❌</a></td></tr>";
 }
 
+$project_select_option = '';
+foreach (project_get_all_rows() as $p_key => $p_data){
+    $project_select_option .= '<option value="'.$p_key.'">'.$p_data['name'].'</option>';
+}
 
 ?>
 <?php
@@ -72,6 +77,7 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                         <th scope="col">Использовать Email</th>
                         <th scope="col">Использовать имя</th>
                         <th scope="col">Автосоздание пользователя</th>
+                        <th scope="col">Проект по умолчанию</th>
                         <th scope="col"></th>
                     </tr>
                     </thead>
@@ -96,16 +102,17 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                     </div>
                     <div id="ip_ban_settings" class="collapse">
                         <div class="form-group row">
-                            <label for="ip_ban_max_failed_attempts" class="col-sm-2 col-form-label">Максимальное
+                            <label for="ip_ban_max_failed_attempts" class="col-md-4 col-form-label">Максимальное
                                 количество
                                 попыток</label>
                             <div class="col-sm-1">
                                 <input type="text" class="form-control" id="ip_ban_max_failed_attempts"
+                                       pattern = "\d"
                                        value="<?= plugin_config_get('ip_ban_max_failed_attempts'); ?>">
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="ip_ban_time" class="col-sm-2 col-form-label">Время блокировки, сек</label>
+                            <label for="ip_ban_time" class="col-md-4 col-form-label">Время блокировки, сек</label>
                             <div class="col-sm-1">
                                 <input type="text" class="form-control" id="ip_ban_time"
                                        value="<?= plugin_config_get('ip_ban_time'); ?>">
@@ -114,7 +121,7 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                     </div>
                     <div class="form-group row">
                         <div class="col-sm-10">
-                            <button type="submit" class="btn btn-primary">Сохранить</button>
+                            <button type="submit" class="btn btn-primary btn-sm">Сохранить</button>
                         </div>
                     </div>
                 </form>
@@ -137,7 +144,7 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Настройка сервера</h5>
+                    <h4 class="modal-title" id="exampleModalLongTitle"><?= plugin_lang_get('config_server_edit_server_title'); ?></h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -149,6 +156,7 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                                    class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_server'); ?></label>
                             <div class="col-sm-5">
                                 <input type="text" class="form-control" id="server" name="server">
+                                <span class="help-block">ldap://server.com or ldaps://server.com</span>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -156,6 +164,7 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                                    class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_root_dn'); ?></label>
                             <div class="col-sm-5">
                                 <input type="text" class="form-control" id="root_dn" name="root_dn">
+                                <span class="help-block">DC=lab,DC=winitlab,DC=com</span>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -216,6 +225,15 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                             </div>
                         </div>
                         <div class="form-group row">
+                            <label for="username_prefix"
+                                   class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_server_default_new_user_project'); ?></label>
+                            <div class="col-sm-5">
+                                <select class="form-control" name="default_new_user_project" id="default_new_user_project">
+                                    <?=$project_select_option; ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
                             <div class="col-sm-10">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" id="use_ldap_email"
@@ -248,6 +266,7 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                                 </div>
                             </div>
                         </div>
+                        <input type="hidden" id="id" name="id">
                 </form>
             </div>
             <div class="modal-footer">
@@ -282,26 +301,12 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
     </div>
 
     <script type="application/javascript">
-        let servers_settings = '<?=json_encode($mla_tools->get_ldap_config());?>';
-
-        function put_servers_settings(username_prefix) {
-            let json = JSON.parse(servers_settings);
-            json.forEach(function (srv, i) {
-                if (srv['username_prefix'] == username_prefix) {
-                    for (var k in srv) { // for(let [name, value] of formData) {
-                        var form_elem = $('#' + k);
-                        if (form_elem.attr('type') == 'text') {
-                            form_elem.val(srv[k]);
-                        } else if (form_elem.attr('type') == 'checkbox' && srv[k] == 1) {
-                            form_elem.prop('checked', true);
-                        }
-                    }
-                }
-            });
-        }
+        let servers_settings = '<?=json_encode($mla_tools->get_ldap_config());?>'; //
 
         $('a').click(function () {
-            put_servers_settings($(this).data('username-prefix'));
+            let id = $(this).data('id');
+            let ar2 = JSON.parse(servers_settings).filter(e => e.username_prefix == id);
+            set_form_elem_value('server_settings', ar2[0]);
         });
 
         $('#save_srv_set').click(function () {
