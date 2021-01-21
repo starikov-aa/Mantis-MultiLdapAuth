@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin for authorization in MantisBT on multiple LDAP servers
- * Copyright (C) 2021  Starikov Anton - starikov_aa@mail.ru
- * https://github.com/starikov-aa/MultiLdapAuth
+ *  Plugin for authorization in MantisBT on multiple LDAP servers
+ *  Copyright (C) 2021  Starikov Anton - starikov_aa@mail.ru
+ *  https://github.com/starikov-aa/Mantis-MultiLdapAuth
  */
 
 class mla_LdapApi
@@ -26,17 +26,16 @@ class mla_LdapApi
     private $ldap_config = null;
 
     /**
-     * @var null
-     */
-    private $tools = null;
-
-    /**
      * mla_LdapApi constructor.
      */
     public function __construct()
     {
-        $this->tools = new mla_Tools();
-        $this->ldap_config = $this->tools->get_ldap_config();
+        $this->ldap_config = mla_ServerConfig::get_servers_config();
+
+        if (!$this->ldap_config) {
+            $msg = 'Incorrect LDAP settings. Check the "' . $this->opt_ldap_config . '" plugin option.';
+            log_event(LOG_LDAP, $msg);
+        }
     }
 
     /**
@@ -227,11 +226,11 @@ class mla_LdapApi
 
                 $t_fields_to_update = array('password' => md5($p_password));
 
-                if (ON == $this->tools->get_ldap_options_from_username($p_username)['use_ldap_realname']) {
+                if (ON == mla_Tools::get_server_config_by_username($p_username)['use_ldap_realname']) {
                     $t_fields_to_update['realname'] = $this->realname($t_user_id);
                 }
 
-                if (ON == $this->tools->get_ldap_options_from_username($p_username)['use_ldap_email']) {
+                if (ON == mla_Tools::get_server_config_by_username($p_username)['use_ldap_email']) {
                     $t_fields_to_update['email'] = $this->email_from_username($p_username);
                 }
 

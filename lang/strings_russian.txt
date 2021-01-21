@@ -22,6 +22,7 @@ $s_plugin_MultiLdapAuth_config_server_edit_use_ldap_realname = 'Использо
 $s_plugin_MultiLdapAuth_config_server_edit_autocreate_user = 'Автоматически создавать пользователя';
 $s_plugin_MultiLdapAuth_config_server_edit_server_default_new_user_project = 'Проект по умолчанию для нового пользователя';
 $s_plugin_MultiLdapAuth_config_server_edit_server_title = 'Настройки сервера';
+$s_plugin_MultiLdapAuth_PasswordManagedExternallyMessage = 'Управление паролями осуществляется через стороний сервис.';
 $s_plugin_MultiLdapAuth_config_ = '';
 $s_plugin_MultiLdapAuth_config_ = '';
 $s_plugin_MultiLdapAuth_config_ = '';

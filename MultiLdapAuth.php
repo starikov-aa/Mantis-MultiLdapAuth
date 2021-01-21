@@ -53,6 +53,7 @@ class MultiLdapAuthPlugin extends MantisPlugin
 	                bind_passwd TEXT NOT NULL,
 	                uid_field TEXT NOT NULL,
 	                realname_field TEXT NOT NULL,
+	                organization TEXT NOT NULL,
 	                network_timeout TEXT NOT NULL,
 	                network_timeout INT NOT NULL,
 	                protocol_version INT NOT NULL,
@@ -82,7 +83,7 @@ class MultiLdapAuthPlugin extends MantisPlugin
         plugin_require_api('core/mla_Tools.class.php');
         plugin_require_api('core/mla_AuthApi.class.php');
         plugin_require_api('core/mla_LdapApi.class.php');
-        plugin_require_api('core/mla_DB.class.php');
+        plugin_require_api('core/mla_ServerConfig.class.php');
     }
 
 
@@ -127,10 +128,10 @@ class MultiLdapAuthPlugin extends MantisPlugin
             $tools = new mla_Tools();
             $t_userid = gpc_get_string('user_id', null) ?? auth_get_current_user_id();
             $t_username = user_get_username($t_userid);
-            $ldap_options = $tools->get_ldap_options_from_username($t_username);
+            $ldap_options = $tools->get_server_config_by_username($t_username);
             $flags['user_is_local'] = mla_Tools::user_is_local($t_username) ? ON : OFF;
-            $flags['use_ldap_email'] = $ldap_options['use_ldap_email'] ?? OFF;
-            $flags['use_ldap_realname'] = $ldap_options['use_ldap_realname'] ?? OFF;
+            $flags['use_ldap_email'] = (int)$ldap_options['use_ldap_email'] ?? OFF;
+            $flags['use_ldap_realname'] = (int)$ldap_options['use_ldap_realname'] ?? OFF;
             $html = '<script type="text/javascript">window.mla_user_flags=JSON.parse(\'' . json_encode($flags) . '\');</script>';
             return $html;
         }

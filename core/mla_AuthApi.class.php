@@ -1,13 +1,14 @@
 <?php
 /**
- * Search Plugin for MantisBT
- * Copyright (C) 2021  Starikov Anton - starikov_aa@mail.ru
- * https://github.com/starikov-aa/mantisbt-search
+ *  Plugin for authorization in MantisBT on multiple LDAP servers
+ *  Copyright (C) 2021  Starikov Anton - starikov_aa@mail.ru
+ *  https://github.com/starikov-aa/Mantis-MultiLdapAuth
  */
+
+use Mantis\Exceptions\ClientException;
 
 class mla_AuthApi
 {
-    // Что будем использовать для авторизации пользователя
     /**
      * @var mla_LdapApi|null
      */
@@ -19,11 +20,6 @@ class mla_AuthApi
     public $auth_flags = null;
 
     /**
-     * @var null
-     */
-    private $tools = null;
-
-    /**
      * mla_AuthApi constructor.
      * @param mla_LdapApi $auth_provider
      * @param AuthFlags $auth_flags
@@ -31,7 +27,6 @@ class mla_AuthApi
      */
     function __construct(mla_LdapApi $auth_provider, AuthFlags $auth_flags)
     {
-        $this->tools = new mla_Tools();
         $this->ldap = $auth_provider;
         $this->auth_flags = $auth_flags;
     }
@@ -42,10 +37,12 @@ class mla_AuthApi
      * If the user passes validation, the cookies are set and
      * true is returned.  If $p_perm_login is true, the long-term
      * cookie is created.
+     *
      * @param string $p_username A prepared username.
      * @param string $p_password A prepared password.
      * @param boolean $p_perm_login Whether to create a long-term cookie.
      * @return boolean indicates if authentication was successful
+     * @throws ClientException
      * @access public
      */
     function attempt_login($p_username, $p_password, $p_perm_login = false)
@@ -85,25 +82,35 @@ class mla_AuthApi
      * @param string $p_username A prepared username.
      * @param string $p_password A prepared password.
      * @return int|boolean user id or false in case of failure.
+     * @throws ClientException
      */
     function auto_create_user($p_username, $p_password)
     {
+        $server_config = mla_Tools::get_server_config_by_username($p_username);
+
+        if (OFF === $server_config['autocreate_user']) {
+            return false;
+        }
+
         $t_user_id = user_get_id_by_name($p_username);
-        user_clear_cache($t_user_id);
+        user_clear_cache($t_user_id); // todo убрать после фикса #0027836
 
         if ($this->ldap->authenticate_by_username($p_username, $p_password)) {
-            $user_param = mla_Tools::get_prefix_and_login_from_username($p_username);
-            $server_config = $this->tools->get_ldap_options_from_username($p_username);
+
             if ($server_config['use_ldap_email'] == ON) {
                 $ldap_email = $this->ldap->get_field_from_username($p_username, 'mail');
             } else {
                 $ldap_email = '';
             }
+
             $t_cookie_string = user_create($p_username, md5($p_password), $ldap_email);
+
             if ($t_cookie_string === false) {
                 return false;
             }
-            log_event(LOG_PLUGIN, 'User created: ' . $p_username);
+
+            log_event(LOG_LDAP, 'User created: ' . $p_username);
+
             return user_get_id_by_name($p_username);
         } else {
             $this->increment_failed_login_user();
@@ -123,16 +130,16 @@ class mla_AuthApi
         }
 
         $this->auth_flags->setCanUseStandardLogin(false);
-        $this->auth_flags->setPasswordManagedExternallyMessage('Passwords are no more, you cannot change them111!');
+        $this->auth_flags->setPasswordManagedExternallyMessage(plugin_lang_get('PasswordManagedExternallyMessage'));
         $this->auth_flags->setCredentialsPage(helper_url_combine(plugin_page('login_password_page', /* redirect */ true), 'username=' . $p_username));
         $this->auth_flags->setLogoutRedirectPage(plugin_page('logout', /* redirect */ true));
 
         # No long term session for identity provider to be able to kick users out.
-        //$this->auth_flags->setPermSessionEnabled(false);
+        $this->auth_flags->setPermSessionEnabled(false);
 
         # Enable re-authentication and use more aggressive timeout.
         $this->auth_flags->setReauthenticationEnabled(true);
-        $this->auth_flags->setReauthenticationLifetime(10);
+        $this->auth_flags->setReauthenticationLifetime(3000);
 
         return $this->auth_flags;
     }
@@ -189,7 +196,7 @@ class mla_AuthApi
         } elseif (($t_ip_info['last_attempt_time'] + plugin_config_get('ip_ban_time')) > time()) {
             // Не пускаем. Т.к. кол-во попыток превышено и время бана еще не закончилось
             log_event(LOG_PLUGIN, 'IP ' . $ip_address . ' blocked due to exceeded number of login attempts');
-            user_clear_cache(0);
+            user_clear_cache(0); // todo убрать после фикса #0027836
             return false;
         } else {
             // Пускаем. Т.к. время бана истекло. И сбрасываем кол-во попыток.

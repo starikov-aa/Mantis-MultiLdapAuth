@@ -20,3 +20,6 @@ $s_plugin_MultiLdapAuth_config_server_edit_username_prefix = 'User prefix';
 $s_plugin_MultiLdapAuth_config_server_edit_use_ldap_email = 'Use email from LDAP';
 $s_plugin_MultiLdapAuth_config_server_edit_use_ldap_realname = 'Use name from LDAP';
 $s_plugin_MultiLdapAuth_config_server_edit_autocreate_user = 'Automatically create user';
+$s_plugin_MultiLdapAuth_config_server_edit_server_default_new_user_project = 'Проект по умолчанию для нового пользователя';
+$s_plugin_MultiLdapAuth_config_server_edit_server_title = 'Настройки сервера';
+$s_plugin_MultiLdapAuth_PasswordManagedExternallyMessage = 'Passwords are managed through a third party service.';

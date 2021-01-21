@@ -8,57 +8,6 @@
 class mla_Tools
 {
     /**
-     *
-     */
-    public $opt_ldap_config = 'ldap_config';
-
-    /**
-     * The LDAP config parameters
-     * @var string|null
-     */
-    public $ldap_config = null;
-
-    /**
-     * mla_Tools constructor.
-     * @throws Exception
-     */
-    function __construct()
-    {
-        $t_config = plugin_config_get($this->opt_ldap_config);
-
-        if (@array_key_exists('server', $t_config[0])) {
-            $this->ldap_config = $t_config;
-        } else {
-            $msg = 'Incorrect LDAP settings. Check the "' . $this->opt_ldap_config . '" plugin option.';
-            log_event(LOG_LDAP, $msg);
-            //throw new Exception($msg);
-        }
-    }
-
-    /**
-     * @param null $find_by
-     * @param null $find_value
-     * @param bool $return_index
-     * @return bool|string|null
-     */
-    function get_ldap_config($find_by = null, $find_value = null, $return_index = false)
-    {
-        if (is_null($this->ldap_config)) {
-            return false;
-        }
-
-        if (!is_null($find_by) && !is_null($find_value)) {
-            $server_item = array_search($find_value, array_column($this->ldap_config, $find_by));
-            if ($server_item !== false) {
-                return $return_index ? $server_item : $this->ldap_config[$server_item];
-            }
-        } else {
-            return $this->ldap_config;
-        }
-        return false;
-    }
-
-    /**
      * Check user is local
      *
      * @param $p_username
@@ -94,22 +43,25 @@ class mla_Tools
     }
 
     /**
+     * Получает настройки сервера по префиксу пользователя
+     *
      * @param $p_username
-     * @return bool
+     * @return bool|array Массив с настройками или false при неудаче
      */
-    function get_ldap_options_from_username($p_username)
+    static function get_server_config_by_username($p_username)
     {
         $t_user_param = self::get_prefix_and_login_from_username($p_username);
-
-        $servers_option = $this->get_ldap_config('username_prefix', $t_user_param['prefix']);
-        if ($servers_option) {
-            return $servers_option;
+        $config = mla_ServerConfig::get_server_settings_by_config_option('username_prefix', $t_user_param['prefix']);
+        if ($config) {
+            return $config;
         } else {
             return false;
         }
     }
 
     /**
+     * Get IP
+     *
      * @return mixed
      */
     static function get_user_ip()
@@ -117,67 +69,58 @@ class mla_Tools
         return filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP);
     }
 
+    /**
+     * Converts 1 to "Checked" for checkbox
+     *
+     * @param int $value
+     * @return string
+     */
     static function convert_on_to_checked($value)
     {
         return $value == 1 ? 'checked' : '';
     }
 
-    function save_server_settings()
+    /**
+     * Updates the value of the settings. If the option is missing, it will be created.
+     *
+     * @param array $settings_list associative array with settings
+     */
+    static function update_general_settings($settings_list)
     {
-        $result = [];
-        $allow_fields = [
-            'id',
-            'server',
-            'root_dn',
-            'bind_dn',
-            'bind_passwd',
-            'uid_field',
-            'realname_field',
-            'network_timeout',
-            'network_timeout',
-            'protocol_version',
-            'follow_referrals',
-            'username_prefix',
-            'use_ldap_email',
-            'use_ldap_realname',
-            'autocreate_user',
-            'default_new_user_project'
+        $settings_list = self::validate_general_settings($settings_list);
+        array_walk($settings_list, function ($val, $key) {
+            plugin_config_set($key, $val);
+        });
+    }
+
+    /**
+     * Checks the value of the settings for correctness
+     *
+     * @param array $settings_list associative array with settings
+     * @return mixed
+     */
+    static function validate_general_settings($settings_list)
+    {
+
+        $all_options = [
+            'ip_ban_enable',
+            'ip_ban_max_failed_attempts',
+            'ip_ban_time'
         ];
 
-        foreach ($_POST as $k => $v) {
-            if (in_array($k, $allow_fields)) {
-                $result[$k] = $v;
+        foreach ($all_options as $item) {
+            if (!array_key_exists($item, $settings_list)) {
+                $settings_list[$item] = null;
             }
         }
 
-        $conf_id = $this->get_ldap_config('username_prefix', $_POST['username_prefix'], true);
-
-        if (is_int($conf_id)) {
-            $this->ldap_config[$conf_id] = $result;
-        } else {
-            $this->ldap_config[] = $result;
-        }
-
-        plugin_config_set('ldap_config', $this->ldap_config);
-    }
-
-    static function update_general_settings($settings_list)
-    {
-       $settings_list = self::validate_general_settings($settings_list);
-       array_walk($settings_list, function ($val, $key){
-           plugin_config_set($key, $val);
-       });
-    }
-
-    static function validate_general_settings($settings_list)
-    {
         $args = [
             'ip_ban_enable' => FILTER_SANITIZE_NUMBER_INT,
             'ip_ban_max_failed_attempts' => FILTER_SANITIZE_NUMBER_INT,
             'ip_ban_time' => FILTER_SANITIZE_NUMBER_INT
         ];
 
-        return filter_input_array(INPUT_POST, $args);
+        return filter_var_array($settings_list, $args);
     }
 
 

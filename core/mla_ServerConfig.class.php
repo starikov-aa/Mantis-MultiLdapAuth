@@ -1,8 +1,14 @@
 <?php
 
 
+/**
+ * Class mla_ServerConfig
+ */
 class mla_ServerConfig
 {
+    /**
+     *
+     */
     const SERVER_SETTINGS_TABLE = 'server_settings';
 
     static function get_servers_config()
@@ -50,9 +56,27 @@ class mla_ServerConfig
         db_query("DELETE FROM " . $tbl_name . " WHERE id=" . db_param(), [$server_id]);
     }
 
-    static function get_server_settings_by_config_option($option_name, $option_value)
+    /**
+     * Возвращает массив с настройками сервера найденый по заданой опции и ее значению
+     *
+     * @param string $find_by имя опции
+     * @param string $find_value згачении опции
+     * @return array|bool
+     */
+    static function get_server_settings_by_config_option($find_by, $find_value)
     {
+        $config = self::get_servers_config();
 
+        if (!$config) return false;
+
+        if (!is_null($find_by) && !is_null($find_value)) {
+            $server_item = array_search($find_value, array_column($config, $find_by));
+            if ($server_item !== false) {
+                return $config[$server_item];
+            }
+        }
+
+        return false;
     }
 
     static function validate_config_option($options_list)
@@ -76,7 +100,7 @@ class mla_ServerConfig
         ];
 
         foreach ($all_options as $item) {
-            if (!array_key_exists($item, $options_list)){
+            if (!array_key_exists($item, $options_list)) {
                 $options_list[$item] = null;
             }
         }
@@ -99,7 +123,7 @@ class mla_ServerConfig
         $args = [
             'server' => [
                 'filter' => FILTER_VALIDATE_REGEXP,
-                'options' => ['regexp' => '/^ldap[s]?:\/\/[a-z0-9\.-]+$/i']
+                'options' => ['regexp' => '/^ldap[s]?:\/\/[a-z0-9\.-:]+$/i']
             ],
             'bind_passwd' => $password_regexp,
             'root_dn' => $base_regexp,
