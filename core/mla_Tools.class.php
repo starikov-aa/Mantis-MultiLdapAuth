@@ -152,7 +152,7 @@ class mla_Tools
 
         $conf_id = $this->get_ldap_config('username_prefix', $_POST['username_prefix'], true);
 
-        if (is_int($conf_id)){
+        if (is_int($conf_id)) {
             $this->ldap_config[$conf_id] = $result;
         } else {
             $this->ldap_config[] = $result;
@@ -161,8 +161,24 @@ class mla_Tools
         plugin_config_set('ldap_config', $this->ldap_config);
     }
 
-    function delete_server_settings(){
-
+    static function update_general_settings($settings_list)
+    {
+       $settings_list = self::validate_general_settings($settings_list);
+       array_walk($settings_list, function ($val, $key){
+           plugin_config_set($key, $val);
+       });
     }
+
+    static function validate_general_settings($settings_list)
+    {
+        $args = [
+            'ip_ban_enable' => FILTER_SANITIZE_NUMBER_INT,
+            'ip_ban_max_failed_attempts' => FILTER_SANITIZE_NUMBER_INT,
+            'ip_ban_time' => FILTER_SANITIZE_NUMBER_INT
+        ];
+
+        return filter_input_array(INPUT_POST, $args);
+    }
+
 
 }

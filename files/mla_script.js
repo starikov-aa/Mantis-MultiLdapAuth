@@ -94,10 +94,24 @@ function set_form_elem_value(form_id, elem_values) {
         } else if (f_elem_type == 'checkbox' && elem_values[key] == 1) {
             f_elem.prop('checked', true);
         } else if (f_elem.prop('tagName') == 'SELECT') {
-            console.log('select');
+            //f_elem.find('option[selected]').prop('selected', false);
             f_elem.find('option[value=' + elem_values[key] + ']').attr('selected','selected');
         } else {
             console.log(`Elem id: ${key}, Elem Type: ${f_elem_type}`);
         }
     }
+}
+
+/**
+ *
+ * @param form_data FormData object
+ */
+function mla_post_request(form_data) {
+    $.ajax({
+        url: '/mantis-plugins/plugin.php?page=MultiLdapAuth/ajax',
+        type: 'POST',
+        data: form_data,
+        processData: false,  // Сообщить jQuery не передавать эти данные
+        contentType: false   // Сообщить jQuery не передавать тип контента
+    });
 }

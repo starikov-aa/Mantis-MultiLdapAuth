@@ -43,6 +43,27 @@ class MultiLdapAuthPlugin extends MantisPlugin
 	                last_attempt_time INT NOT NULL DEFAULT '1'",
                     $t_table_options
                 ]
+            ],
+            ['CreateTableSQL',
+                [plugin_table('server_settings'),
+                    "id INT NOT NULL AUTOINCREMENT PRIMARY,
+                    server TEXT NOT NULL,
+	                root_dn TEXT NOT NULL,
+	                bind_dn TEXT NOT NULL,
+	                bind_passwd TEXT NOT NULL,
+	                uid_field TEXT NOT NULL,
+	                realname_field TEXT NOT NULL,
+	                network_timeout TEXT NOT NULL,
+	                network_timeout INT NOT NULL,
+	                protocol_version INT NOT NULL,
+	                follow_referrals INT NOT NULL,
+	                username_prefix TEXT NOT NULL,
+	                use_ldap_email INT NOT NULL,
+	                use_ldap_realname INT NOT NULL,
+	                autocreate_user INT NOT NULL,
+	                default_new_user_project INT NOT NULL",
+                    $t_table_options
+                ]
             ]
         ];
     }
@@ -61,6 +82,7 @@ class MultiLdapAuthPlugin extends MantisPlugin
         plugin_require_api('core/mla_Tools.class.php');
         plugin_require_api('core/mla_AuthApi.class.php');
         plugin_require_api('core/mla_LdapApi.class.php');
+        plugin_require_api('core/mla_DB.class.php');
     }
 
 

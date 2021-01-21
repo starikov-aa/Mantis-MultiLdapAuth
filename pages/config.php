@@ -14,8 +14,7 @@ layout_page_begin('manage_overview_page.php');
 
 print_manage_menu('manage_plugin_page.php');
 
-$mla_tools = new mla_Tools();
-$servers_config = $mla_tools->get_ldap_config();
+$servers_config = mla_DB::get_servers_config();
 
 $tbl_lines = "";
 foreach ($servers_config as $server) {
@@ -30,13 +29,13 @@ foreach ($servers_config as $server) {
             <td>" . $use_realname . "</td>
             <td>" . $autocreate_user . "</td>
             <td>" . project_get_name($server['default_new_user_project'], false) . "</td>
-            <td><a href=\"#editServerSettings\" data-toggle=\"modal\" data-id='" . $server['id'] . "'>✏</a>&nbsp;
-            <a href=\"#DeleteServerSettings\" data-toggle=\"modal\" data-id='" . $server['id'] . "'>❌</a></td></tr>";
+            <td><a href='#editServerSettings' class='server_action_button' data-action='edit_server' data-toggle='modal' data-id='" . $server['id'] . "'>✏</a>&nbsp;
+            <a href='#DeleteServerSettings' class='server_action_button' data-action='delete_server' data-toggle='modal'data-id='" . $server['id'] . "'>❌</a></td></tr>";
 }
 
 $project_select_option = '';
-foreach (project_get_all_rows() as $p_key => $p_data){
-    $project_select_option .= '<option value="'.$p_key.'">'.$p_data['name'].'</option>';
+foreach (project_get_all_rows() as $p_key => $p_data) {
+    $project_select_option .= '<option value="' . $p_key . '">' . $p_data['name'] . '</option>';
 }
 
 ?>
@@ -63,8 +62,8 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
             <div role="tabpanel" class="tab-pane active" id="ldap_servers">
                 <div class="form-group row">
                     <div class="col-sm-10">
-                        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
-                                data-target="#editServerSettings" data-action="add">
+                        <button type="button" class="server_action_button btn btn-primary btn-sm" data-toggle="modal"
+                                data-target="#editServerSettings" data-action="add_server">
                             Добавить сервер
                         </button>
                     </div>
@@ -87,11 +86,12 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                 </table>
             </div>
             <div role="tabpanel" class="tab-pane" id="general_settings">
-                <form>
+                <form name="form_general_settings" id="form_general_settings">
                     <div class="form-group row">
                         <div class="col-sm-10">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="ip_ban_enable"
+                                <input class="form-check-input" type="checkbox" id="ip_ban_enable" name="ip_ban_enable"
+                                       value="1"
                                        data-toggle='collapse'
                                        data-target='#ip_ban_settings' <?= mla_Tools::convert_on_to_checked(plugin_config_get('ip_ban_enable')); ?>>
                                 <label class="form-check-label" for="ip_ban_enable">
@@ -107,23 +107,26 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                                 попыток</label>
                             <div class="col-sm-1">
                                 <input type="text" class="form-control" id="ip_ban_max_failed_attempts"
-                                       pattern = "\d"
+                                       name="ip_ban_max_failed_attempts"
+                                       pattern="\d"
                                        value="<?= plugin_config_get('ip_ban_max_failed_attempts'); ?>">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="ip_ban_time" class="col-md-4 col-form-label">Время блокировки, сек</label>
                             <div class="col-sm-1">
-                                <input type="text" class="form-control" id="ip_ban_time"
+                                <input type="text" class="form-control" id="ip_ban_time" name="ip_ban_time"
                                        value="<?= plugin_config_get('ip_ban_time'); ?>">
                             </div>
                         </div>
                     </div>
                     <div class="form-group row">
                         <div class="col-sm-10">
-                            <button type="submit" class="btn btn-primary btn-sm">Сохранить</button>
+                            <button type="button" id="save_general_settings" class="btn btn-primary btn-sm">Сохранить
+                            </button>
                         </div>
                     </div>
+                    <input type="hidden" name="action" value="update_general_settings">
                 </form>
             </div>
         </div>
@@ -144,7 +147,8 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="exampleModalLongTitle"><?= plugin_lang_get('config_server_edit_server_title'); ?></h4>
+                    <h4 class="modal-title"
+                        id="exampleModalLongTitle"><?= plugin_lang_get('config_server_edit_server_title'); ?></h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -228,8 +232,9 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                             <label for="username_prefix"
                                    class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_server_default_new_user_project'); ?></label>
                             <div class="col-sm-5">
-                                <select class="form-control" name="default_new_user_project" id="default_new_user_project">
-                                    <?=$project_select_option; ?>
+                                <select class="form-control" name="default_new_user_project"
+                                        id="default_new_user_project">
+                                    <?= $project_select_option; ?>
                                 </select>
                             </div>
                         </div>
@@ -267,11 +272,12 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                             </div>
                         </div>
                         <input type="hidden" id="id" name="id">
+                        <input type="hidden" id="action" name="action">
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="save_srv_set">Save changes</button>
+                <button type="button" class="btn btn-primary" id="save_server">Save changes</button>
             </div>
         </div>
     </div>
@@ -294,30 +300,35 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-danger">Delete</button>
+                    <button id="delete_server" type="button" class="btn btn-danger">Delete</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script type="application/javascript">
-        let servers_settings = '<?=json_encode($mla_tools->get_ldap_config());?>'; //
+        let servers_settings = '<?=json_encode(mla_DB::get_servers_config())?>'; //
 
-        $('a').click(function () {
-            let id = $(this).data('id');
-            let ar2 = JSON.parse(servers_settings).filter(e => e.username_prefix == id);
-            set_form_elem_value('server_settings', ar2[0]);
+        $('#save_general_settings').click(function () {
+            let form_data = new FormData($(this).closest("form")[0]);
+            mla_post_request(form_data);
         });
 
-        $('#save_srv_set').click(function () {
-            let f = new FormData($('#server_settings')[0]);
-            $.ajax({
-                url: '/mantis/plugin.php?page=MultiLdapAuth/ajax',
-                type: 'POST',
-                data: f,
-                processData: false,  // Сообщить jQuery не передавать эти данные
-                contentType: false   // Сообщить jQuery не передавать тип контента
-            });
+        $('.server_action_button').click(function () {
+            let action = $(this).data('action');
+            let id = $(this).data('id');
+            $('#id').val(id);
+            $('#action').val(action);
+
+            if (action == "edit_server") {
+                let config_options = JSON.parse(servers_settings).filter(e => e.id == id);
+                set_form_elem_value('server_settings', config_options[0]);
+            }
+        });
+
+        $('#save_server, #delete_server').click(function () {
+            let form_data = new FormData($('#server_settings')[0]);
+            mla_post_request(form_data);
         })
 
         var loading = $('.spinner').hide();
@@ -328,7 +339,6 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
             .ajaxStop(function () {
                 loading.hide();
             });
-
 
     </script>
 
