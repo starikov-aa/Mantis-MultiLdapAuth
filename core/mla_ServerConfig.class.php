@@ -33,6 +33,11 @@ class mla_ServerConfig
         $tbl_name = plugin_table(self::SERVER_SETTINGS_TABLE);
         $config_options = self::validate_config_option($config_options);
 
+        // проверяем нет ли совпадений
+        if (self::get_server_settings_by_config_option('username_prefix', $config_options['username_prefix']) !== false) {
+            return false;
+        }
+
         array_walk($config_options, function (&$v) {
             $v = "'" . $v . "'";
         });
@@ -43,6 +48,8 @@ class mla_ServerConfig
         db_param_push();
         $query = "INSERT INTO " . $tbl_name . " (" . $fields . ") VALUES (" . $values . ");";
         db_query($query);
+
+        return true;
 
     }
 
