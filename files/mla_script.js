@@ -108,7 +108,7 @@ function set_form_elem_value(form_id, elem_values) {
  */
 function mla_post_request(form_data) {
     $.ajax({
-        url: '/mantis-plugins/plugin.php?page=MultiLdapAuth/ajax',
+        url: AJAX_URL,
         type: 'POST',
         data: form_data,
         processData: false,  // Сообщить jQuery не передавать эти данные

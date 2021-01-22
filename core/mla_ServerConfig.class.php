@@ -32,6 +32,11 @@ class mla_ServerConfig
     {
         $tbl_name = plugin_table(self::SERVER_SETTINGS_TABLE);
         $config_options = self::validate_config_option($config_options);
+
+        array_walk($config_options, function (&$v) {
+            $v = "'" . $v . "'";
+        });
+
         $fields = join(",", array_keys($config_options));
         $values = join(",", array_values($config_options));
 
