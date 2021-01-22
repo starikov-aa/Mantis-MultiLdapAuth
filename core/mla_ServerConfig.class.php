@@ -11,6 +11,11 @@ class mla_ServerConfig
      */
     const SERVER_SETTINGS_TABLE = 'server_settings';
 
+    /**
+     * Get server settings
+     *
+     * @return false|array Return array with servers setting, else false
+     */
     static function get_servers_config()
     {
         $result = false;
@@ -60,10 +65,10 @@ class mla_ServerConfig
      * Возвращает массив с настройками сервера найденый по заданой опции и ее значению
      *
      * @param string $find_by имя опции
-     * @param string $find_value згачении опции
+     * @param mixed $find_value значении опции
      * @return array|bool
      */
-    static function get_server_settings_by_config_option($find_by, $find_value)
+    static function get_server_settings_by_config_option(string $find_by, $find_value)
     {
         $config = self::get_servers_config();
 
@@ -79,7 +84,11 @@ class mla_ServerConfig
         return false;
     }
 
-    static function validate_config_option($options_list)
+    /**
+     * @param array $options_list
+     * @return mixed
+     */
+    static function validate_config_option(array $options_list)
     {
         $all_options = [
             'server',

@@ -51,8 +51,7 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
         <!-- Nav tabs -->
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active"><a href="#ldap_servers" aria-controls="home" role="tab"
-                                                      data-toggle="tab">Серверы
-                    LDAP</a></li>
+                                                      data-toggle="tab">Серверы LDAP</a></li>
             <li role="presentation"><a href="#general_settings" aria-controls="profile" role="tab" data-toggle="tab">Общие
                     настройки</a></li>
         </ul>
@@ -147,140 +146,155 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title"
-                        id="exampleModalLongTitle"><?= plugin_lang_get('config_server_edit_server_title'); ?></h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <h5 class="modal-title"><?= plugin_lang_get('config_server_edit_server_title'); ?></h5>
                 </div>
-                <form id="server_settings" method="post" name="server_settings">
-                    <div class="modal-body">
-                        <div class="form-group row">
-                            <label for="server"
-                                   class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_server'); ?></label>
-                            <div class="col-sm-5">
-                                <input type="text" class="form-control" id="server" name="server">
-                                <span class="help-block">ldap://server.com or ldaps://server.com</span>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="ip_ban_max_failed_attempts"
-                                   class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_root_dn'); ?></label>
-                            <div class="col-sm-5">
-                                <input type="text" class="form-control" id="root_dn" name="root_dn">
-                                <span class="help-block">DC=lab,DC=winitlab,DC=com</span>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="root_dn"
-                                   class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_bind_dn'); ?></label>
-                            <div class="col-sm-5">
-                                <input type="text" class="form-control" id="bind_dn" name="bind_dn" value="test">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="bind_passwd"
-                                   class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_bind_passwd'); ?></label>
-                            <div class="col-sm-5">
-                                <input type="text" class="form-control" id="bind_passwd" name="bind_passwd">
-                            </div>
-                        </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li role="presentation" class="active"><a href="#tab_ldap_servers_main" aria-controls="home"
+                                                                  role="tab"
+                                                                  data-toggle="tab">Основные</a></li>
+                        <li role="presentation"><a href="#tab_ldap_servers_other" aria-controls="home" role="tab"
+                                                   data-toggle="tab">Дополнительные</a></li>
+                    </ul>
+                    <form id="server_settings" method="post" name="server_settings">
+                        <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane active" id="tab_ldap_servers_main">
+                                <div class="form-group row">
+                                    <label for="server"
+                                           class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_server'); ?></label>
+                                    <div class="col-sm-5">
+                                        <input type="text" class="form-control" id="server" name="server">
+                                        <span class="help-block">ldap://server.com or ldaps://server.com</span>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="ip_ban_max_failed_attempts"
+                                           class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_root_dn'); ?></label>
+                                    <div class="col-sm-5">
+                                        <input type="text" class="form-control" id="root_dn" name="root_dn">
+                                        <span class="help-block">DC=lab,DC=winitlab,DC=com</span>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="root_dn"
+                                           class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_bind_dn'); ?></label>
+                                    <div class="col-sm-5">
+                                        <input type="text" class="form-control" id="bind_dn" name="bind_dn"
+                                               value="test">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="bind_passwd"
+                                           class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_bind_passwd'); ?></label>
+                                    <div class="col-sm-5">
+                                        <input type="text" class="form-control" id="bind_passwd" name="bind_passwd">
+                                    </div>
+                                </div>
 
-                        <div class="form-group row">
-                            <label for="uid_field"
-                                   class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_uid_field'); ?></label>
-                            <div class="col-sm-5">
-                                <input type="text" class="form-control" id="uid_field" name="uid_field">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="realname_field"
-                                   class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_realname_field'); ?></label>
-                            <div class="col-sm-5">
-                                <input type="text" class="form-control" id="realname_field" name="realname_field">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="network_timeout"
-                                   class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_network_timeout'); ?></label>
-                            <div class="col-sm-5">
-                                <input type="text" class="form-control" id="network_timeout" name="network_timeout">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="protocol_version"
-                                   class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_protocol_version'); ?></label>
-                            <div class="col-sm-5">
-                                <input type="text" class="form-control" id="protocol_version" name="protocol_version">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="follow_referrals"
-                                   class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_follow_referrals'); ?></label>
-                            <div class="col-sm-5">
-                                <input type="text" class="form-control" id="follow_referrals" name="follow_referrals">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="username_prefix"
-                                   class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_username_prefix'); ?></label>
-                            <div class="col-sm-5">
-                                <input type="text" class="form-control" id="username_prefix" name="username_prefix">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="username_prefix"
-                                   class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_server_default_new_user_project'); ?></label>
-                            <div class="col-sm-5">
-                                <select class="form-control" name="default_new_user_project"
-                                        id="default_new_user_project">
-                                    <?= $project_select_option; ?>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <div class="col-sm-10">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="use_ldap_email"
-                                           name="use_ldap_email" value="1">
-                                    <label class="form-check-label" for="use_ldap_email">
-                                        <?= plugin_lang_get('config_server_edit_use_ldap_email'); ?>
-                                    </label>
+                                <div class="form-group row">
+                                    <label for="uid_field"
+                                           class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_uid_field'); ?></label>
+                                    <div class="col-sm-5">
+                                        <input type="text" class="form-control" id="uid_field" name="uid_field">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="realname_field"
+                                           class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_realname_field'); ?></label>
+                                    <div class="col-sm-5">
+                                        <input type="text" class="form-control" id="realname_field"
+                                               name="realname_field">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="network_timeout"
+                                           class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_network_timeout'); ?></label>
+                                    <div class="col-sm-5">
+                                        <input type="text" class="form-control" id="network_timeout"
+                                               name="network_timeout">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="protocol_version"
+                                           class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_protocol_version'); ?></label>
+                                    <div class="col-sm-5">
+                                        <input type="text" class="form-control" id="protocol_version"
+                                               name="protocol_version">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="follow_referrals"
+                                           class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_follow_referrals'); ?></label>
+                                    <div class="col-sm-5">
+                                        <input type="text" class="form-control" id="follow_referrals"
+                                               name="follow_referrals">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="username_prefix"
+                                           class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_username_prefix'); ?></label>
+                                    <div class="col-sm-5">
+                                        <input type="text" class="form-control" id="username_prefix"
+                                               name="username_prefix">
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="form-group row">
-                            <div class="col-sm-10">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="use_ldap_realname"
-                                           name="use_ldap_realname" value="1">
-                                    <label class="form-check-label" for="use_ldap_realname">
-                                        <?= plugin_lang_get('config_server_edit_use_ldap_realname'); ?>
-                                    </label>
+                            <div role="tabpanel" class="tab-pane" id="tab_ldap_servers_other">
+                                <div class="form-group row">
+                                    <label for="username_prefix"
+                                           class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_server_default_new_user_project'); ?></label>
+                                    <div class="col-sm-5">
+                                        <select class="form-control" name="default_new_user_project"
+                                                id="default_new_user_project">
+                                            <?= $project_select_option; ?>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <div class="col-sm-10">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="autocreate_user"
-                                           name="autocreate_user" value="1">
-                                    <label class="form-check-label" for="autocreate_user">
-                                        <?= plugin_lang_get('config_server_edit_autocreate_user'); ?>
-                                    </label>
+                                <div class="form-group row">
+                                    <div class="col-sm-10">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="use_ldap_email"
+                                                   name="use_ldap_email" value="1">
+                                            <label class="form-check-label" for="use_ldap_email">
+                                                <?= plugin_lang_get('config_server_edit_use_ldap_email'); ?>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-10">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="use_ldap_realname"
+                                                   name="use_ldap_realname" value="1">
+                                            <label class="form-check-label" for="use_ldap_realname">
+                                                <?= plugin_lang_get('config_server_edit_use_ldap_realname'); ?>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-10">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="autocreate_user"
+                                                   name="autocreate_user" value="1">
+                                            <label class="form-check-label" for="autocreate_user">
+                                                <?= plugin_lang_get('config_server_edit_autocreate_user'); ?>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <input type="hidden" id="id" name="id">
                         <input type="hidden" id="action" name="action">
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="save_server">Save changes</button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="save_server">Save changes</button>
+                </div>
             </div>
         </div>
-    </div>
     </div>
 
     <!-- Modal -->
