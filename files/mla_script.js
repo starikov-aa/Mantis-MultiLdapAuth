@@ -39,10 +39,10 @@ function disable_user_field() {
 
     if (!flags.user_is_local){
         if (flags.use_ldap_email) {
-            $('#email-field').attr('disabled', 'disabled')
+            $('#email-field').attr('readonly', true)
         }
         if (flags.use_ldap_realname) {
-            $('#realname').attr('disabled', 'disabled')
+            $('#realname').attr('readonly', true)
         }
     }
 }
@@ -67,7 +67,7 @@ function disable_admin_field() {
         if (flags.use_ldap_realname) {
             elem.push('#edit-realname');
         }
-        elem.map(e => $(e).attr('disabled', 'disabled'))
+        elem.map(e => $(e).attr('readonly', true))
     }
 }
 
