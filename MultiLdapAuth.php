@@ -124,7 +124,7 @@ class MultiLdapAuthPlugin extends MantisPlugin
 
         // добавляем на страницу логина селект с префиксами юзернеймов
         $resources .= '<script type="text/javascript">$(function() {
-          $("<select name=\'username_prefix\'><option></option>' . $up_sel_opt . '</select>")
+          $("<select name=\'username_prefix\' id=\'select_username_prefix\'><option value=\'\'>Локальный вход</option>' . $up_sel_opt . '</select>")
           .insertAfter("label[for=\'username\']");
         })</script>';
 
