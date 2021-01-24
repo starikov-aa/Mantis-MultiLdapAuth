@@ -95,30 +95,48 @@ class MultiLdapAuthPlugin extends MantisPlugin
     {
         $t_hooks = array(
             'EVENT_AUTH_USER_FLAGS' => 'auth_user_flags',
-            'EVENT_CORE_READY' => 'add_user_id_to_cache',
-            'EVENT_LAYOUT_RESOURCES' => 'add_html_headers'
-//            'EVENT_MANAGE_USER_UPDATE_FORM' => 'test22',
-            // эти события для редактирования пользователей из админки
-//            'EVENT_MANAGE_USER_PAGE' => 'test22', // тут будем записывать js код который будет блокировать редактирование имени и почты на странице редактирования пользователей
-//            'EVENT_MANAGE_USER_UPDATE' => '', // тут проверять какое имя и почту записали в базу при редактировании юзера, при необходжимости менять.
+            'EVENT_CORE_READY' => 'func_for_event_core_ready',
+            'EVENT_LAYOUT_RESOURCES' => 'add_html_headers',
+            'EVENT_LAYOUT_PAGE_HEADER' => 'check_user_edit_data'
         );
 
         return $t_hooks;
     }
 
     /**
+     * Add CSS and scripts to pages.
+     *
      * @return string
      * @throws Exception
      */
     function add_html_headers()
     {
+        foreach (mla_ServerConfig::get_servers_config() as $srv_conf) {
+            $up_sel_opt[] = '<option value=\'' . $srv_conf['username_prefix'] . '\'>' . $srv_conf['username_prefix'] . '</option>';
+        }
+        $up_sel_opt = join("", $up_sel_opt);
+
+        // добавляем CSS
         $resources = '<link rel="stylesheet" type="text/css" href="' . plugin_file('mla_style.css') . '" />';
+
+        // добавляем JS функции
         $resources .= '<script type="text/javascript" src="' . plugin_file('mla_script.js') . '"></script>';
+
+        // добавляем на страницу логина селект с префиксами юзернеймов
+        $resources .= '<script type="text/javascript">$(function() {
+          $("<select name=\'username_prefix\'><option></option>' . $up_sel_opt . '</select>")
+          .insertAfter("label[for=\'username\']");
+        })</script>';
+
         $resources .= $this->add_js_flags();
+
         return $resources;
     }
 
     /**
+     * Generates a list of flags controlling editing Email, RealName.
+     * Further JS script will block / unblock fields for editing by these flags.
+     *
      * @return string
      * @throws Exception
      */
@@ -137,16 +155,30 @@ class MultiLdapAuthPlugin extends MantisPlugin
         }
     }
 
-    function check_user_edit_data()
+    /**
+     * Runs functions when the EVENT_CORE_READY event occurs
+     *
+     * @throws \Mantis\Exceptions\ClientException
+     */
+    function func_for_event_core_ready()
     {
-
+        $this->add_user_id_to_cache();
+        $this->format_username();
     }
 
     /**
+     * Temporary function which allows the plugin to work.
+     * It adds user with ID 0 (not existing user in DB) to cache.
+     *
+     * todo remove after fix #0027836
+     *
      * @throws \Mantis\Exceptions\ClientException
      */
     function add_user_id_to_cache()
     {
+        // Only fire on pages:
+        // /login_password_page.php
+        // /plugin.php?page=MultiLdapAuth/login_password_page
         $cond = preg_match("#login(_password)?_page#i", $_SERVER['REQUEST_URI']);
         if ($cond) {
             $t_username = trim(gpc_get_string('username', ''));
@@ -161,6 +193,24 @@ class MultiLdapAuthPlugin extends MantisPlugin
     }
 
     /**
+     * From the data received from login_page, form the username in the required format.
+     * then username is passed to login_password_page.php
+     */
+    function format_username()
+    {
+        // Only fire on pages:
+        // /login_password_page.php
+        // /plugin.php?page=MultiLdapAuth/login_password_page
+        if (preg_match("#login(_password)?_page#i", $_SERVER['REQUEST_URI'])) {
+            $f_username = gpc_get_string('username', '');
+            $f_username_prefix = gpc_get_string('username_prefix', '');
+            if (!empty($f_username) && !empty($f_username_prefix)) {
+                $_POST['username'] = $f_username_prefix . '\\' . $f_username;
+            }
+        }
+    }
+
+    /**
      * @param $p_event_name
      * @param $p_args
      * @return AuthFlags|null
@@ -168,14 +218,7 @@ class MultiLdapAuthPlugin extends MantisPlugin
      */
     function auth_user_flags($p_event_name, $p_args)
     {
-        # Don't access DB if db_is_connected() is false.
-
-//        print_r($this->get_servers_config('username_postfix', 'corp.lab2.com'));
-//        echo config_get( 'user_login_valid_regex' );
-
-//        $f_domen = gpc_get_string('domen', '');
         $t_username = empty($p_args['username']) ? trim(gpc_get_string('username', '')) : $p_args['username'];
-//        $t_username = empty($f_domen) ? $f_username : $f_domen . '\\' . $f_username;
         $t_user_id = $p_args['user_id'];
 
         log_event(LOG_PLUGIN, $t_username . " = " . $t_user_id);
