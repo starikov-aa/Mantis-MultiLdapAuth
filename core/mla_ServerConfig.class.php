@@ -55,6 +55,13 @@ class mla_ServerConfig
 
     static function update_server_settings($server_id, $config_options)
     {
+
+        // проверяем нет ли совпадений
+        $config = self::get_server_settings_by_config_option('username_prefix', $config_options['username_prefix']);
+        if  ($config !== false && $config['id'] != $server_id) {
+            return false;
+        }
+
         $tbl_name = plugin_table(self::SERVER_SETTINGS_TABLE);
         $config_options = self::validate_config_option($config_options);
 
@@ -65,6 +72,8 @@ class mla_ServerConfig
         $query = "UPDATE " . $tbl_name . " SET " . join(",", $config_options) . " WHERE id=" . db_param();
 
         db_query($query, [$server_id]);
+
+        return true;
     }
 
     static function delete_server_settings($server_id)
