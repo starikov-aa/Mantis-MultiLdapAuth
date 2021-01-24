@@ -89,6 +89,7 @@ class mla_AuthApi
         $server_config = mla_Tools::get_server_config_by_username($p_username);
 
         if (OFF === $server_config['autocreate_user']) {
+            log_event(LOG_LDAP, 'Auto-creation of users is disabled for the server ' . $server_config['server']);
             return false;
         }
 
