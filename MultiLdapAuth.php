@@ -96,8 +96,7 @@ class MultiLdapAuthPlugin extends MantisPlugin
         $t_hooks = array(
             'EVENT_AUTH_USER_FLAGS' => 'auth_user_flags',
             'EVENT_CORE_READY' => 'func_for_event_core_ready',
-            'EVENT_LAYOUT_RESOURCES' => 'add_html_headers',
-            'EVENT_LAYOUT_PAGE_HEADER' => 'check_user_edit_data'
+            'EVENT_LAYOUT_RESOURCES' => 'add_html_headers'
         );
 
         return $t_hooks;
@@ -162,8 +161,10 @@ class MultiLdapAuthPlugin extends MantisPlugin
      */
     function func_for_event_core_ready()
     {
-        $this->add_user_id_to_cache();
+        // Функция format_username должна выполняться первая!!!
+        // т.к. она формирует логин в нужном формате.
         $this->format_username();
+        $this->add_user_id_to_cache();
     }
 
     /**

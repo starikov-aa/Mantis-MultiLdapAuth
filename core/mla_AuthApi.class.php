@@ -111,8 +111,10 @@ class mla_AuthApi
             }
 
             log_event(LOG_LDAP, 'User created: ' . $p_username);
+            $t_user_id = user_get_id_by_name($p_username);
+            project_add_user($server_config['default_new_user_project'], $t_user_id, REPORTER);
 
-            return user_get_id_by_name($p_username);
+            return $t_user_id;
         } else {
             $this->increment_failed_login_user();
         }
