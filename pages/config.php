@@ -179,8 +179,7 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                                     <label for="root_dn"
                                            class="col-sm-5 col-form-label"><?= plugin_lang_get('config_server_edit_bind_dn'); ?></label>
                                     <div class="col-sm-5">
-                                        <input type="text" class="form-control" id="bind_dn" name="bind_dn"
-                                               value="test">
+                                        <input type="text" class="form-control" id="bind_dn" name="bind_dn">
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -338,7 +337,7 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                 let config_options = JSON.parse(servers_settings).filter(e => e.id == id);
                 set_form_elem_value('server_settings', config_options[0]);
             } else if (action == "add_server") {
-                $('#server_settings > input').not(':button, :submit, :reset, :hidden').removeAttr('checked').removeAttr('selected').not(':checkbox, :radio, select').val('');
+                $('#server_settings').trigger("reset");
             }
         });
 
