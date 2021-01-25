@@ -94,8 +94,7 @@ function set_form_elem_value(form_id, elem_values) {
         } else if (f_elem_type == 'checkbox' && elem_values[key] == 1) {
             f_elem.prop('checked', true);
         } else if (f_elem.prop('tagName') == 'SELECT') {
-            //f_elem.find('option[selected]').prop('selected', false);
-            f_elem.find('option[value=' + elem_values[key] + ']').attr('selected','selected');
+            f_elem.find('option[value=' + elem_values[key] + ']').prop('selected', true);
         } else {
             console.log(`Elem id: ${key}, Elem Type: ${f_elem_type}`);
         }
