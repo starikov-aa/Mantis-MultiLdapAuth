@@ -137,12 +137,12 @@ class mla_ServerConfig
 
         $base_regexp = [
             'filter' => FILTER_VALIDATE_REGEXP,
-            'options' => ['regexp' => "/^[a-z0-9\.,-=]+$/i"]
+            'options' => ['regexp' => "/^[a-z0-9\.,-= ]+$/i"]
         ];
 
         $password_regexp = [
             'filter' => FILTER_VALIDATE_REGEXP,
-            'options' => ['regexp' => "/^[a-z0-9\.-_*$@!]+$/i"]
+            'options' => ['regexp' => "/^[a-z0-9\.\-_*$@!]+$/i"]
         ];
 
         $int_filter = [
