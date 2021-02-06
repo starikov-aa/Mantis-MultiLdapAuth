@@ -153,7 +153,7 @@ class mla_ServerConfig
         $args = [
             'server' => [
                 'filter' => FILTER_VALIDATE_REGEXP,
-                'options' => ['regexp' => '/^ldap[s]?:\/\/[a-z0-9\.-:]+$/i']
+                'options' => ['regexp' => '/^ldap[s]?:\/\/[a-z0-9\.\-:]+$/i']
             ],
             'bind_passwd' => $password_regexp,
             'root_dn' => $base_regexp,
