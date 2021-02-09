@@ -84,6 +84,7 @@ class mla_Tools
      * Updates the value of the settings. If the option is missing, it will be created.
      *
      * @param array $settings_list associative array with settings
+     * @return bool
      */
     static function update_general_settings($settings_list)
     {
@@ -91,6 +92,8 @@ class mla_Tools
         array_walk($settings_list, function ($val, $key) {
             plugin_config_set($key, $val);
         });
+
+        return true;
     }
 
     /**

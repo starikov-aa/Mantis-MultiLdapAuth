@@ -22,6 +22,10 @@
     height: 34px;
 }
 
+.mla-alert {
+    margin: 20px;
+}
+
 .spinner {
     margin: 100px auto;
     width: 50px;

@@ -11,6 +11,25 @@ class mla_ServerConfig
      */
     const SERVER_SETTINGS_TABLE = 'server_settings';
 
+    const OPTIONS_LIST = [
+        'server' => ['requires' => true, 'default'],
+        'root_dn' => ['requires' => true, 'default'],
+        'bind_dn' => ['requires' => true, 'default'],
+        'bind_passwd' => ['requires' => true, 'default'],
+        'uid_field' => ['requires' => false, 'default' => 'sAMAccountName'],
+        'realname_field' => ['requires' => false, 'default' => 'CN'],
+        'network_timeout' => ['requires' => false, 'default' => 5],
+        'protocol_version' => ['requires' => false, 'default' => 3],
+        'follow_referrals' => ['requires' => false, 'default' => 0],
+        'username_prefix' => ['requires' => true, 'default'],
+        'use_ldap_email' => ['requires' => false, 'default' => 0],
+        'use_ldap_realname' => ['requires' => false, 'default' => 0],
+        'autocreate_user' => ['requires' => false, 'default' => 1],
+        'default_new_user_project' => ['requires' => false, 'default' => 0],
+        'use_starttls' => ['requires' => false, 'default' => 0],
+        'tls_protocol_min' => ['requires' => false, 'default' => LDAP_OPT_X_TLS_PROTOCOL_TLS1_2]
+    ];
+
     /**
      * Get server settings
      *
@@ -31,7 +50,6 @@ class mla_ServerConfig
     static function add_server_settings($config_options)
     {
         $tbl_name = plugin_table(self::SERVER_SETTINGS_TABLE);
-        $config_options = self::validate_config_option($config_options);
 
         // проверяем нет ли совпадений
         if (self::get_server_settings_by_config_option('username_prefix', $config_options['username_prefix']) !== false) {
@@ -58,12 +76,11 @@ class mla_ServerConfig
 
         // проверяем нет ли совпадений
         $config = self::get_server_settings_by_config_option('username_prefix', $config_options['username_prefix']);
-        if  ($config !== false && $config['id'] != $server_id) {
+        if ($config !== false && $config['id'] != $server_id) {
             return false;
         }
 
         $tbl_name = plugin_table(self::SERVER_SETTINGS_TABLE);
-        $config_options = self::validate_config_option($config_options);
 
         array_walk($config_options, function (&$v, $k) {
             $v = $k . "='" . $v . "'";
@@ -111,27 +128,9 @@ class mla_ServerConfig
      */
     static function validate_config_option(array $options_list)
     {
-        $all_options = [
-            'server',
-            'root_dn',
-            'bind_dn',
-            'bind_passwd',
-            'uid_field',
-            'realname_field',
-            'network_timeout',
-            'network_timeout',
-            'protocol_version',
-            'follow_referrals',
-            'username_prefix',
-            'use_ldap_email',
-            'use_ldap_realname',
-            'autocreate_user',
-            'default_new_user_project'
-        ];
-
-        foreach ($all_options as $item) {
-            if (!array_key_exists($item, $options_list)) {
-                $options_list[$item] = null;
+        foreach (self::OPTIONS_LIST as $opt_name => $item) {
+            if (!array_key_exists($opt_name, $options_list)) {
+                $options_list[$opt_name] = null;
             }
         }
 
@@ -146,8 +145,7 @@ class mla_ServerConfig
         ];
 
         $int_filter = [
-            'filter' => FILTER_VALIDATE_INT,
-            'options' => ['default' => 0]
+            'filter' => FILTER_VALIDATE_INT
         ];
 
         $args = [
@@ -167,10 +165,31 @@ class mla_ServerConfig
             'use_ldap_email' => $int_filter,
             'use_ldap_realname' => $int_filter,
             'autocreate_user' => $int_filter,
-            'default_new_user_project' => $int_filter
+            'default_new_user_project' => $int_filter,
+            'use_starttls' => $int_filter,
+            'tls_protocol_min' => FILTER_VALIDATE_FLOAT
         ];
 
-        return filter_var_array($options_list, $args, true);
+        $options_list = filter_var_array($options_list, $args, true);
+        $error = [];
+
+        foreach ($options_list as $oname => $oval) {
+            $def = self::OPTIONS_LIST[$oname];
+            if ($def['requires']) {
+                if (empty($oval)) {
+                    $error[] = $oname;
+                }
+            } else {
+                $options_list[$oname] = empty($oval) ? $def['default'] : $oval;
+            }
+        }
+
+        if (count($error)) {
+            throw new Exception('Invalid values in the following parameters: ' . join(', ', $error));
+        } else {
+            return $options_list;
+        }
+
     }
 
 
