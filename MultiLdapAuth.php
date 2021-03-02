@@ -130,10 +130,14 @@ class MultiLdapAuthPlugin extends MantisPlugin
         $resources .= '<script type="text/javascript" src="' . plugin_file('mla_script.js') . '"></script>';
 
         // добавляем на страницу логина, селект с префиксами юзернеймов
+        // и удаляем из имени пользвателя префикс
         if (preg_match('/.*\/login_page\.php/i', $_SERVER['SCRIPT_NAME'])) {
             $prefixes = json_encode(array_column(mla_ServerConfig::get_servers_config(), 'username_prefix'));
             $resources .= '<script type="text/javascript">
-                        $(function() {
+                        $(function() { 
+                            $("#username").val(function(i, v) {
+                                return v.replace(/^.*\\\\/, "")
+                            })
                             add_select_with_prefixes(\'' . $prefixes . '\')
                         });   
                    </script>';
