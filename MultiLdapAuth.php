@@ -96,10 +96,23 @@ class MultiLdapAuthPlugin extends MantisPlugin
         $t_hooks = array(
             'EVENT_AUTH_USER_FLAGS' => 'auth_user_flags',
             'EVENT_CORE_READY' => 'func_for_event_core_ready',
-            'EVENT_LAYOUT_RESOURCES' => 'add_html_headers'
+            'EVENT_LAYOUT_RESOURCES' => 'add_html_headers',
+            'EVENT_LAYOUT_BODY_END' => 'add_js_scripts_after_body'
         );
 
         return $t_hooks;
+    }
+
+    function add_js_scripts_after_body()
+    {
+        if (preg_match('/.*\/login_page\.php/i', $_SERVER['SCRIPT_NAME'])) {
+            $prefixes = json_encode(array_column(mla_ServerConfig::get_servers_config(), 'username_prefix'));
+            $js = '<script type="text/javascript">
+                    add_select_with_prefixes(' . $prefixes . ');   
+                   </script>';
+        }
+
+        return $js;
     }
 
     /**
@@ -110,22 +123,21 @@ class MultiLdapAuthPlugin extends MantisPlugin
      */
     function add_html_headers()
     {
-        foreach (mla_ServerConfig::get_servers_config() as $srv_conf) {
-            $up_sel_opt[] = '<option value=\'' . $srv_conf['username_prefix'] . '\'>' . $srv_conf['username_prefix'] . '</option>';
-        }
-        $up_sel_opt = join("", $up_sel_opt);
-
         // добавляем CSS
         $resources = '<link rel="stylesheet" type="text/css" href="' . plugin_file('mla_style.css') . '" />';
 
         // добавляем JS функции
         $resources .= '<script type="text/javascript" src="' . plugin_file('mla_script.js') . '"></script>';
 
-        // добавляем на страницу логина селект с префиксами юзернеймов
-        $resources .= '<script type="text/javascript">$(function() {
-          $("<select name=\'username_prefix\' id=\'select_username_prefix\'><option value=\'\'>Локальный вход</option>' . $up_sel_opt . '</select>")
-          .insertAfter("label[for=\'username\']");
-        })</script>';
+        // добавляем на страницу логина, селект с префиксами юзернеймов
+        if (preg_match('/.*\/login_page\.php/i', $_SERVER['SCRIPT_NAME'])) {
+            $prefixes = json_encode(array_column(mla_ServerConfig::get_servers_config(), 'username_prefix'));
+            $resources .= '<script type="text/javascript">
+                        $(function() {
+                            add_select_with_prefixes(\'' . $prefixes . '\')
+                        });   
+                   </script>';
+        }
 
         $resources .= $this->add_js_flags();
 

@@ -15,7 +15,7 @@ $(document).ready(function () {
 });
 
 /**
-* Collapses bootstrap collapse based on the state of the associated checkbox
+ * Collapses bootstrap collapse based on the state of the associated checkbox
  */
 function check_bt_collapse() {
     $('input').each(function () {
@@ -31,7 +31,7 @@ function check_bt_collapse() {
 }
 
 /**
-* Depending on the settings for the LDAP server,
+ * Depending on the settings for the LDAP server,
  * disables editing fields on the user page
  */
 function disable_user_field() {
@@ -48,7 +48,7 @@ function disable_user_field() {
 }
 
 /**
-* Depending on the settings for the LDAP server,
+ * Depending on the settings for the LDAP server,
  * disables editing of fields on the user page in the admin panel
  */
 function disable_admin_field() {
@@ -155,4 +155,23 @@ function display_alert(alert_id, text, type = 'alert-success') {
     $('#' + alert_id)
         .addClass(type)
         .text(text);
+}
+
+/**
+* Add a selectbox with prefixes to the login page
+ *
+ * @param array prefixes array with prefixes
+ */
+function add_select_with_prefixes(prefixes) {
+    let new_select = $("<select name=\'username_prefix\' id=\'select_username_prefix\'>" +
+        "<option value=\'\'>Локальный вход</option></select>")
+
+    JSON.parse(prefixes).forEach(function (item) {
+        new_select.append($("<option>", {
+            value: item,
+            text: item
+        }))
+    })
+
+    new_select.insertAfter("label[for=\'username\']");
 }
