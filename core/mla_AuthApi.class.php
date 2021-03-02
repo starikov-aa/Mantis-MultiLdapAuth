@@ -138,7 +138,7 @@ class mla_AuthApi
         $this->auth_flags->setLogoutRedirectPage(plugin_page('logout', /* redirect */ true));
 
         # No long term session for identity provider to be able to kick users out.
-        $this->auth_flags->setPermSessionEnabled(false);
+        $this->auth_flags->setPermSessionEnabled(true);
 
         # Enable re-authentication and use more aggressive timeout.
         $this->auth_flags->setReauthenticationEnabled(true);
