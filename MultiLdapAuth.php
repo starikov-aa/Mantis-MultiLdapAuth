@@ -96,23 +96,10 @@ class MultiLdapAuthPlugin extends MantisPlugin
         $t_hooks = array(
             'EVENT_AUTH_USER_FLAGS' => 'auth_user_flags',
             'EVENT_CORE_READY' => 'func_for_event_core_ready',
-            'EVENT_LAYOUT_RESOURCES' => 'add_html_headers',
-            'EVENT_LAYOUT_BODY_END' => 'add_js_scripts_after_body'
+            'EVENT_LAYOUT_RESOURCES' => 'add_html_headers'
         );
 
         return $t_hooks;
-    }
-
-    function add_js_scripts_after_body()
-    {
-        if (preg_match('/.*\/login_page\.php/i', $_SERVER['SCRIPT_NAME'])) {
-            $prefixes = json_encode(array_column(mla_ServerConfig::get_servers_config(), 'username_prefix'));
-            $js = '<script type="text/javascript">
-                    add_select_with_prefixes(' . $prefixes . ');   
-                   </script>';
-        }
-
-        return $js;
     }
 
     /**

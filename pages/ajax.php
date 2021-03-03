@@ -27,19 +27,25 @@ if ($t_action == "add_server" || $t_action == "edit_server") {
 }
 
 if ($t_action == "add_server") {
-    mla_ServerConfig::add_server_settings($post_data);
+    if (mla_ServerConfig::add_server_settings($post_data)) {
+        ajax_response('ok');
+    }
 }
 
 if ($t_action == "edit_server") {
-    mla_ServerConfig::update_server_settings($t_id, $post_data);
+    if (mla_ServerConfig::update_server_settings($t_id, $post_data)) {
+        ajax_response('ok');
+    }
 }
 
 if ($t_action == "delete_server") {
-    ajax_response(mla_ServerConfig::delete_server_settings($t_id));
+    if (ajax_response(mla_ServerConfig::delete_server_settings($t_id))) {
+        ajax_response('ok');
+    }
 }
 
 if ($t_action == "update_general_settings") {
-    if (mla_Tools::update_general_settings($post_data)){
+    if (mla_Tools::update_general_settings($post_data)) {
         ajax_response('ok');
     }
 }
