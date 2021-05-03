@@ -94,7 +94,7 @@ class mla_AuthApi
         }
 
         $t_user_id = user_get_id_by_name($p_username);
-        user_clear_cache($t_user_id); // todo убрать после фикса #0027836
+        // user_clear_cache($t_user_id); // todo убрать после фикса #0027836
 
         if ($this->ldap->authenticate_by_username($p_username, $p_password)) {
 
@@ -199,7 +199,7 @@ class mla_AuthApi
         } elseif (($t_ip_info['last_attempt_time'] + plugin_config_get('ip_ban_time')) > time()) {
             // Не пускаем. Т.к. кол-во попыток превышено и время бана еще не закончилось
             log_event(LOG_PLUGIN, 'IP ' . $ip_address . ' blocked due to exceeded number of login attempts');
-            user_clear_cache(0); // todo убрать после фикса #0027836
+            // user_clear_cache(0); // todo убрать после фикса #0027836
             return false;
         } else {
             // Пускаем. Т.к. время бана истекло. И сбрасываем кол-во попыток.

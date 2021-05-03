@@ -167,7 +167,7 @@ class MultiLdapAuthPlugin extends MantisPlugin
         // Функция format_username должна выполняться первая!!!
         // т.к. она формирует логин в нужном формате.
         $this->format_username();
-        $this->add_user_id_to_cache();
+        // $this->add_user_id_to_cache(); // todo remove after fix #0027836
     }
 
     /**
