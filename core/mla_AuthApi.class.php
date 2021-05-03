@@ -141,7 +141,7 @@ class mla_AuthApi
         $this->auth_flags->setPermSessionEnabled(true);
 
         # Enable re-authentication and use more aggressive timeout.
-        $this->auth_flags->setReauthenticationEnabled(true);
+        $this->auth_flags->setReauthenticationEnabled(false);
         $this->auth_flags->setReauthenticationLifetime(3000);
 
         return $this->auth_flags;
