@@ -148,12 +148,14 @@ class MultiLdapAuthPlugin extends MantisPlugin
             $tools = new mla_Tools();
             $t_userid = gpc_get_string('user_id', null) ?? auth_get_current_user_id();
             $t_username = user_get_username($t_userid);
-            $ldap_options = $tools->get_server_config_by_username($t_username);
-            $flags['user_is_local'] = mla_Tools::user_is_local($t_username) ? ON : OFF;
-            $flags['use_ldap_email'] = (int)$ldap_options['use_ldap_email'] ?? OFF;
-            $flags['use_ldap_realname'] = (int)$ldap_options['use_ldap_realname'] ?? OFF;
-            $html = '<script type="text/javascript">window.mla_user_flags=JSON.parse(\'' . json_encode($flags) . '\');</script>';
-            return $html;
+            if (!mla_Tools::user_is_local($t_username)) {
+                $ldap_options = $tools->get_server_config_by_username($t_username);
+                $flags['user_is_local'] = mla_Tools::user_is_local($t_username) ? ON : OFF;
+                $flags['use_ldap_email'] = (int)$ldap_options['use_ldap_email'] ?? OFF;
+                $flags['use_ldap_realname'] = (int)$ldap_options['use_ldap_realname'] ?? OFF;
+                $html = '<script type="text/javascript">window.mla_user_flags=JSON.parse(\'' . json_encode($flags) . '\');</script>';
+                return $html;
+            }
         }
     }
 
