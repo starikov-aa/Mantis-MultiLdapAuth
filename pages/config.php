@@ -48,7 +48,7 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
 </div>';
 ?>
     <div style="margin: 20px;">
-        <div id="alert-main" class="mla-alert"></div>
+        <div class="message" role="alert"></div>
         <!-- Nav tabs -->
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active"><a href="#ldap_servers" aria-controls="home" role="tab"
@@ -288,7 +288,7 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                         <input type="hidden" id="id" name="id">
                         <input type="hidden" id="action" name="action">
                     </form>
-                    <div id="alert-server-settings" class="mla-alert"></div>
+                    <div class="message" role="alert"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -312,6 +312,7 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                 </div>
                 <div class="modal-body">
                     Вы точно хотите удалить настройки сервера?
+                    <div class="message" role="alert"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -326,7 +327,7 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
 
         $('#save_general_settings').click(function () {
             let form_data = new FormData($(this).closest("form")[0]);
-            mla_post_request(form_data, 'alert-main');
+            mla_post_request(form_data);
         });
 
         $('.server_action_button').click(function () {
@@ -345,7 +346,7 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
 
         $('#save_server, #delete_server').click(function () {
             let form_data = new FormData($('#server_settings')[0]);
-            mla_post_request(form_data, 'alert-server-settings');
+            mla_post_request(form_data);
         })
 
         var loading = $('.spinner').hide();

@@ -107,7 +107,7 @@ function set_form_elem_value(form_id, elem_values) {
  * @param form_data FormData object
  * @param alert_id ID div in which to place the message
  */
-function mla_post_request(form_data, alert_id = 'alert-main') {
+function mla_post_request(form_data) {
     $.ajax({
         url: AJAX_URL,
         type: 'POST',
@@ -115,7 +115,7 @@ function mla_post_request(form_data, alert_id = 'alert-main') {
         processData: false,
         contentType: false,
         complete: function (response, status) {
-            parse_server_response(response.responseText, status, alert_id);
+            parse_server_response(response.responseText, status);
         }
     });
 }
@@ -127,34 +127,21 @@ function mla_post_request(form_data, alert_id = 'alert-main') {
  * @param status status (success, error, etc)
  * @param alert_id ID div in which to place the message
  */
-function parse_server_response(response, status, alert_id) {
+function parse_server_response(response, status) {
     if (status == 'success') {
         try {
             let json = JSON.parse(response);
             if (json['error'] !== '') {
-                display_alert(alert_id, json['error'], 'alert-danger')
+                display_message(json['error'], 'danger')
             } else {
-                display_alert(alert_id, json['result'], 'alert-success')
+                display_message(json['result'], 'success')
             }
         } catch (e) {
-            display_alert(alert_id, 'JSON parsing error in server response', 'alert-danger')
+            display_message('JSON parsing error in server response', 'danger')
         }
     } else {
-        display_alert(alert_id, 'An error occurred while sending your request', 'alert-danger')
+        display_message('An error occurred while sending your request', 'danger')
     }
-}
-
-/**
- * Writes a message to a div with the specified ID
- *
- * @param alert_id ID div in which to place the message
- * @param text Message text
- * @param type message type (alert-success, alert-danger, alert-info, alert-warning)
- */
-function display_alert(alert_id, text, type = 'alert-success') {
-    $('#' + alert_id)
-        .addClass(type)
-        .text(text);
 }
 
 /**
@@ -174,4 +161,25 @@ function add_select_with_prefixes(prefixes) {
     })
 
     new_select.insertAfter("label[for=\'username\']");
+}
+
+/**
+ * Determine whether the modal window is currently used or not,
+ * and depending on this displays a message in the desired div
+ * @param text message text
+ * @param severity Possible values: success, danger, info, warning
+ * @param msg_block_class_name The name of the DIV class where the message passed in text will be written. Default - message
+ */
+function display_message(text, severity = 'success', msg_block_class_name = 'message') {
+    let modal = $('div').find('.modal.in');
+    let elem = modal.length ? modal : $(document);
+    elem.find('.' + msg_block_class_name + ':first')
+        .attr("class", "alert message alert-" + severity)
+        .text(text)
+        .show();
+
+    if (severity == 'success') {
+        setTimeout(() => $('.message').css('display', 'none'), 3000);
+    }
+    //console.log(modal);
 }
