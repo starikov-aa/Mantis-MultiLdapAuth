@@ -26,6 +26,10 @@
     margin: 20px;
 }
 
+#mla_departments_list {
+    width: 500px;
+}
+
 .spinner {
     margin: 100px auto;
     width: 50px;

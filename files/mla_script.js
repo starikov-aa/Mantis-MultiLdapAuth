@@ -145,7 +145,7 @@ function parse_server_response(response, status) {
 }
 
 /**
-* Add a selectbox with prefixes to the login page
+ * Add a selectbox with prefixes to the login page
  *
  * @param array prefixes array with prefixes
  */
@@ -182,4 +182,65 @@ function display_message(text, severity = 'success', msg_block_class_name = 'mes
         setTimeout(() => $('.message').css('display', 'none'), 3000);
     }
     //console.log(modal);
+}
+
+/**
+ * Creates a new Select
+ * @param name name
+ * @param id id
+ * @param classes classes separated by spaces
+ * @param data array ([[k=>v]]) from which options will be created
+ * @param is_multiple enable multi-selection
+ * return HTML element code
+ */
+function mla_create_new_select(name, id = '', classes = '', data = null, is_multiple = false) {
+    let elem = $('<select>', {
+        id: id,
+        name: name,
+        class: classes,
+        multiple: is_multiple
+    });
+
+    if (data !== null) {
+        elem = mla_add_options_to_select(elem, data);
+    }
+
+    return elem.prop('outerHTML');
+}
+
+/**
+ * Adding new options to the specified SELECT
+ * @param select_obj JQuery object SELECT
+ * @param data array ([[k=>v]]) from which options will be created
+ */
+function mla_add_options_to_select(select_obj, data) {
+    for(let key in data) {
+        select_obj.append($('<option>', {
+            value: key,
+            text: data[key]
+        }));
+    }
+
+    return select_obj;
+}
+
+/**
+ * Adding a new row to the table with rules for projects
+ * @param project_list array ([[id => name]])
+ * @param domain_list array ([[name => name]])
+ * @param right_list
+ */
+function mla_config_add_new_line_to_project_rules_table(project_list, domain_list, right_list) {
+    let projects = mla_create_new_select('projects_list[]', 'projects_list', '', project_list);
+    let domains = mla_create_new_select('domains_list[]', 'domains_list', '', domain_list);
+    let rights = mla_create_new_select('domains_list[]', 'domains_list', '', right_list);
+    $('#mla_tbl_project_rules').find('tbody').append(
+        '<tr>' +
+        '   <td>'+ projects +'</td>' +
+        '   <td><input id="mla_departments_list" name="departments[]"></td>' +
+        '   <td>' + domains + '</td>' +
+        '   <td>' + rights + '</td>' +
+        '   <td><a href=\'#\' class="mla_delete_row_in_projects_rules_table">❌</a></td>' +
+        '</tr>'
+    );
 }

@@ -15,6 +15,18 @@ layout_page_begin('manage_overview_page.php');
 print_manage_menu('manage_plugin_page.php');
 
 $servers_config = mla_ServerConfig::get_servers_config();
+$domains_list = array_merge(['all' => 'all'], array_column($servers_config, 'username_prefix', 'username_prefix'));
+$projects_list = array_column(project_get_all_rows(), 'name', 'id');
+$rights_list = mla_Tools::get_rights_list();
+
+echo "
+<script type=\"text/javascript\">
+    window.MLA_DOMAINS_LIST = JSON.parse('" . json_encode($domains_list) . "');
+    window.MLA_PROJECTS_LIST = JSON.parse('" . json_encode($projects_list) . "');
+    window.MLA_RIGHTS_LIST = JSON.parse('" . json_encode($rights_list) . "');
+</script>
+";
+
 
 $tbl_lines = "";
 foreach ($servers_config as $server) {
@@ -55,6 +67,8 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                                                       data-toggle="tab">Серверы LDAP</a></li>
             <li role="presentation"><a href="#general_settings" aria-controls="profile" role="tab" data-toggle="tab">Общие
                     настройки</a></li>
+            <li role="presentation"><a href="#tab_ldap_servers_projects" aria-controls="home" role="tab"
+                                       data-toggle="tab">Проекты</a></li>
         </ul>
 
         <!-- Tab panes -->
@@ -128,6 +142,29 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                     </div>
                     <input type="hidden" name="action" value="update_general_settings">
                 </form>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="tab_ldap_servers_projects">
+                <table class="table" id="mla_tbl_project_rules">
+                    <thead>
+                    <tr>
+                        <th scope="col">Проект</th>
+                        <th scope="col">Значения Departments</th>
+                        <th scope="col">Домен</th>
+                        <th scope="col">Права</th>
+                        <th scope="col"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <div class="form-group row">
+                    <div class="col-sm-10">
+                        <button id="mla_btn_add_new_line_to_project_rules_table" type="button"
+                                class="btn btn-primary btn-sm">
+                            Добавить строку
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -357,6 +394,16 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
             .ajaxStop(function () {
                 loading.hide();
             });
+
+        $('#mla_btn_add_new_line_to_project_rules_table').click(function () {
+            mla_config_add_new_line_to_project_rules_table(
+                window.MLA_PROJECTS_LIST,
+                window.MLA_DOMAINS_LIST, window.MLA_RIGHTS_LIST);
+        });
+
+        $('#mla_tbl_project_rules tbody').on('click', '.mla_delete_row_in_projects_rules_table', function () {
+           $(this).closest('tr').remove();
+        });
 
     </script>
 

@@ -126,5 +126,20 @@ class mla_Tools
         return filter_var_array($settings_list, $args);
     }
 
+    /**
+     * Generate list with users rights
+     *
+     * @return array
+     */
+    static function get_rights_list(): array
+    {
+        $rights_list = [];
+        $t_enum_values = MantisEnum::getValues( config_get( 'access_levels_enum_string' ));
 
+        foreach ( $t_enum_values as $t_enum_value ) {
+            $rights_list[$t_enum_value] = get_enum_element( 'access_levels', $t_enum_value );
+        }
+
+        return $rights_list;
+    }
 }
