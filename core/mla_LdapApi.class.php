@@ -14,12 +14,6 @@ class mla_LdapApi
     public $t_ds = null;
 
     /**
-     * Is simulation enabled?
-     * @var bool
-     */
-    public $simulationEnabled = false;
-
-    /**
      * The LDAP config parameters
      * @var null
      */
@@ -314,121 +308,6 @@ class mla_LdapApi
 
         return $t_authenticated;
     }
-
-    /**
-     * Checks if the LDAP simulation mode is enabled.
-     *
-     * @return boolean true if enabled, false otherwise.
-     */
-    function simulation_is_enabled()
-    {
-        $t_filename = config_get_global('ldap_simulation_file_path');
-        $this->simulationEnabled = !is_blank($t_filename);
-        return $this->simulationEnabled;
-    }
-
-
-    /**
-     * Gets a user from LDAP simulation mode given the username.
-     *
-     * @param string $p_username The user name.
-     * @return array|null An associate array with user information or null if not found.
-     */
-    function simulation_get_user($p_username)
-    {
-        $t_filename = config_get_global('ldap_simulation_file_path');
-        $t_lines = file($t_filename);
-        if ($t_lines === false) {
-            log_event(LOG_LDAP, 'Auth_LDAP::simulation_get_user: could not read simulation data from ' . $t_filename);
-            trigger_error(ERROR_LDAP_SERVER_CONNECT_FAILED, ERROR);
-        }
-
-        foreach ($t_lines as $t_line) {
-            $t_line = trim($t_line, " \t\r\n");
-            $t_row = explode(',', $t_line);
-
-            if ($t_row[0] != $p_username) {
-                continue;
-            }
-
-            $t_user = array();
-
-            $t_user['username'] = $t_row[0];
-            $t_user['realname'] = $t_row[1];
-            $t_user['email'] = $t_row[2];
-            $t_user['password'] = $t_row[3];
-
-            return $t_user;
-        }
-
-        log_event(LOG_LDAP, 'Auth_LDAP::simulation_get_user: user \'' . $p_username . '\' not found.');
-        return null;
-    }
-
-    /**
-     * Given a username, gets the email address or empty address if user is not found.
-     *
-     * @param string $p_username The user name.
-     * @return string The email address or blank if user is not found.
-     */
-    function simulation_email_from_username($p_username)
-    {
-        $t_user = $this->simulation_get_user($p_username);
-        if ($t_user === null) {
-            log_event(LOG_LDAP, 'Auth_LDAP::simulation_email_from_username: user \'' . $p_username . '\' not found.');
-            return '';
-        }
-
-        log_event(LOG_LDAP, 'Auth_LDAP::simulation_email_from_username: user \'' . $p_username . '\' has email \'' . $t_user['email'] . '\'.');
-        return $t_user['email'];
-    }
-
-
-    /**
-     * Authenticates the specified user id / password based on the simulation data.
-     *
-     * @param string $p_username The username.
-     * @param string $p_password The password.
-     * @return boolean true for authenticated, false otherwise.
-     */
-    function simulation_authenticate_by_username($p_username, $p_password)
-    {
-        $c_username = $this->escape_string($p_username);
-
-        $t_user = $this->simulation_get_user($c_username);
-        if ($t_user === null) {
-            log_event(LOG_LDAP, 'Auth_LDAP::simulation_authenticate: user \'' . $p_username . '\' not found.');
-            return false;
-        }
-
-        if ($t_user['password'] != $p_password) {
-            log_event(LOG_LDAP, 'Auth_LDAP::simulation_authenticate: expected password \'' . $t_user['password'] . '\' and got \'' . $p_password . '\'.');
-            return false;
-        }
-
-        log_event(LOG_LDAP, 'Auth_LDAP::simulation_authenticate: authentication successful for user \'' . $p_username . '\'.');
-        return true;
-    }
-
-
-    /**
-     * Given a username, this methods gets the realname or empty string if not found.
-     *
-     * @param string $p_username The username.
-     * @return string The real name or an empty string if not found.
-     */
-    function simulation_realname_from_username($p_username)
-    {
-        $t_user = $this->simulation_get_user($p_username);
-        if ($t_user === null) {
-            log_event(LOG_LDAP, 'Auth_LDAP::simulatiom_realname_from_username: user \'' . $p_username . '\' not found.');
-            return '';
-        }
-
-        log_event(LOG_LDAP, 'Auth_LDAP::simulatiom_realname_from_username: user \'' . $p_username . '\' has email \'' . $t_user['realname'] . '\'.');
-        return $t_user['realname'];
-    }
-
 
     /**
      * Gets the value of a specific field from LDAP given the user name
