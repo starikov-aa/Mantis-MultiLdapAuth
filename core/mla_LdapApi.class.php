@@ -167,46 +167,42 @@ class mla_LdapApi
      */
     function authenticate_by_username($p_username, $p_password)
     {
-        if ($this->simulation_is_enabled()) {
-            log_event(LOG_LDAP, 'Authenticating via LDAP simulation');
-            $t_authenticated = $this->simulation_authenticate_by_username($p_username, $p_password);
-        } else {
 
-            if (!$t_username_param = mla_Tools::get_prefix_and_login_from_username($p_username)){
-                log_event(LOG_LDAP, 'Error getting parameters from username (' . $p_username . ')');
-                return null;
-            }
+        if (!$t_username_param = mla_Tools::get_prefix_and_login_from_username($p_username)) {
+            log_event(LOG_LDAP, 'Error getting parameters from username (' . $p_username . ')');
+            return null;
+        }
 
-            $t_authenticated = false;
+        $t_authenticated = false;
 
-            if (!is_null($this->ldap_config)) {
+        if (!is_null($this->ldap_config)) {
 
-                foreach ($this->ldap_config as $config) {
+            foreach ($this->ldap_config as $config) {
 
-                    if($config['username_prefix'] != $t_username_param['prefix']){
-                        continue;
-                    }
+                if ($config['username_prefix'] != $t_username_param['prefix']) {
+                    continue;
+                }
 
-                    $t_ldap_organization = $config['organization'];
-                    $t_ldap_root_dn = $config['root_dn'];
-                    $t_ldap_uid_field = $config['uid_field'];
-                    $t_ldap_server = $config['server'];
-                    $t_network_timeout = $config['network_timeout'];
-                    $t_protocol_version = $config['protocol_version'];
-                    $t_follow_referrals = ON == $config['follow_referrals'];
-                    $p_binddn = $config['bind_dn'];
-                    $p_bind_password = $config['bind_passwd'];
+                $t_ldap_organization = $config['organization'];
+                $t_ldap_root_dn = $config['root_dn'];
+                $t_ldap_uid_field = $config['uid_field'];
+                $t_ldap_server = $config['server'];
+                $t_network_timeout = $config['network_timeout'];
+                $t_protocol_version = $config['protocol_version'];
+                $t_follow_referrals = ON == $config['follow_referrals'];
+                $p_binddn = $config['bind_dn'];
+                $p_bind_password = $config['bind_passwd'];
 
-                    $t_authenticated = $this->lookup($t_ldap_organization, $t_ldap_root_dn,
-                        $t_ldap_uid_field, $t_ldap_server, $t_network_timeout,
-                        $t_protocol_version, $t_follow_referrals,
-                        $p_binddn, $p_bind_password, $t_username_param['username'], $p_password);
+                $t_authenticated = $this->lookup($t_ldap_organization, $t_ldap_root_dn,
+                    $t_ldap_uid_field, $t_ldap_server, $t_network_timeout,
+                    $t_protocol_version, $t_follow_referrals,
+                    $p_binddn, $p_bind_password, $t_username_param['username'], $p_password);
 
-                    if ($t_authenticated == true) {
-                        break;
-                    }
+                if ($t_authenticated == true) {
+                    break;
                 }
             }
+
         }
 
 
@@ -328,7 +324,7 @@ class mla_LdapApi
             return null;
         }
 
-        if (!$t_username_param = mla_Tools::get_prefix_and_login_from_username($p_username)){
+        if (!$t_username_param = mla_Tools::get_prefix_and_login_from_username($p_username)) {
             log_event(LOG_LDAP, 'Error getting parameters from username (' . $p_username . ') when getting field: ' . $p_field);
             return null;
         }
@@ -337,7 +333,7 @@ class mla_LdapApi
 
         foreach ($this->ldap_config as $config) {
 
-            if($config['username_prefix'] != $t_username_param['prefix']){
+            if ($config['username_prefix'] != $t_username_param['prefix']) {
                 continue;
             }
 
@@ -453,10 +449,6 @@ class mla_LdapApi
      */
     function email_from_username($p_username)
     {
-        if ($this->simulation_is_enabled()) {
-            return $this->simulation_email_from_username($p_username);
-        }
-
         $t_email = $this->get_field_from_username($p_username, 'mail');
         if ($t_email === null) {
             return '';
@@ -476,9 +468,6 @@ class mla_LdapApi
     {
         $t_ldap_realname_field = 'cn';
 
-        if ($this->simulation_is_enabled()) {
-            return $this->simulation_realname_from_username($p_username);
-        }
         //todo Исправить. Тут похоже обрабатывается только первый сервер ЛДАП в массиве.
         if (array_key_exists('realname_field', $this->ldap_config)) {
             $t_ldap_realname_field = $this->ldap_config['realname_field'];

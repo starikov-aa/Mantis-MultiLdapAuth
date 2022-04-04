@@ -134,12 +134,30 @@ class mla_Tools
     static function get_rights_list(): array
     {
         $rights_list = [];
-        $t_enum_values = MantisEnum::getValues( config_get( 'access_levels_enum_string' ));
+        $t_enum_values = MantisEnum::getValues(config_get('access_levels_enum_string'));
 
-        foreach ( $t_enum_values as $t_enum_value ) {
-            $rights_list[$t_enum_value] = get_enum_element( 'access_levels', $t_enum_value );
+        foreach ($t_enum_values as $t_enum_value) {
+            $rights_list[$t_enum_value] = get_enum_element('access_levels', $t_enum_value);
         }
 
         return $rights_list;
+    }
+
+    /**
+     * Generate options for select
+     *
+     * @param $data array [key => val]
+     * @param null $selected_value if this value is exists in the data keys, then it will be marked to as selected
+     * @return string return HTML for option tags
+     */
+    static function gen_select_options($data, $selected_value = null)
+    {
+        $options = "";
+        foreach ($data as $key => $value) {
+            $selected = $selected_value == $key ? "selected" : "";
+            $options .= "<option ".$selected." value='" . $key . "'>" . $value . "</option>";
+        }
+
+        return $options;
     }
 }

@@ -111,8 +111,10 @@ class mla_AuthApi
             }
 
             log_event(LOG_LDAP, 'User created: ' . $p_username);
+
             $t_user_id = user_get_id_by_name($p_username);
-            project_add_user($server_config['default_new_user_project'], $t_user_id, REPORTER);
+
+            $this->adding_user_to_project_by_department($p_username, $t_user_id);
 
             return $t_user_id;
         } else {
@@ -208,5 +210,67 @@ class mla_AuthApi
         }
 
         return true;
+    }
+
+    /**
+     * @param bool $debug is true,
+     */
+    public function adding_user_to_project_by_department($debug = false): void
+    {
+        $t_user_id = auth_get_current_user_id();
+        $p_username = user_get_username($t_user_id);
+
+        $domain = mla_Tools::get_prefix_and_login_from_username($p_username)['prefix'];
+        $department = $this->ldap->get_field_from_username($p_username, 'department');
+
+        foreach (mla_UserDistributionPerProjects::get_rules() as $rule) {
+
+            $project_name = project_get_name($rule['project_id']);
+
+            if (empty($rule['department'])) break;
+
+            if ($rule['department'] == "*") {
+                if ($rule['domain'] == $domain || $rule['domain'] == 'all') {
+
+                    $this->_log_event(LOG_PLUGIN,
+                        sprintf('User: %s, depart: %s, matched with: %s, added to: %s',
+                            $p_username, $department, "*", $project_name));
+
+                    if (!$debug) project_add_user($rule['project_id'], $t_user_id, $rule['rights']);
+                }
+                continue;
+            }
+
+            foreach (explode(",", $rule['department']) as $dept) {
+
+                $dept = trim($dept);
+
+                if (mb_stripos($department, $dept) !== false) {
+
+                    if ($rule['domain'] == $domain || $rule['domain'] == 'all') {
+
+                        $this->_log_event(LOG_PLUGIN,
+                            sprintf('User: %s, depart: %s, matched with: %s, added to: %s',
+                                $p_username, $department, $dept, $project_name));
+
+                        if (!$debug) project_add_user($rule['project_id'], $t_user_id, $rule['rights']);
+                    }
+
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Wrapper for log_event()
+     *
+     * @param $p_level
+     * @param $text
+     */
+    function _log_event($p_level, $text)
+    {
+        echo $text . "\r\n";
+        log_event($p_level, $text);
     }
 }

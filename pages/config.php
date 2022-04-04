@@ -144,27 +144,37 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                 </form>
             </div>
             <div role="tabpanel" class="tab-pane" id="tab_ldap_servers_projects">
-                <table class="table" id="mla_tbl_project_rules">
-                    <thead>
-                    <tr>
-                        <th scope="col">Проект</th>
-                        <th scope="col">Значения Departments</th>
-                        <th scope="col">Домен</th>
-                        <th scope="col">Права</th>
-                        <th scope="col"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-                <div class="form-group row">
-                    <div class="col-sm-10">
-                        <button id="mla_btn_add_new_line_to_project_rules_table" type="button"
-                                class="btn btn-primary btn-sm">
-                            Добавить строку
-                        </button>
+                <form name="mla_udpp_form_rules" id="mla_udpp_form_rules">
+                    <div class="form-group row">
+                        <div class="col-sm-10">
+                            <button id="mla_udpp_add_new_rule" type="button"
+                                    class="btn btn-primary btn-sm">
+                                Добавить строку
+                            </button>
+                        </div>
                     </div>
-                </div>
+                    <table class="table" id="mla_udpp_rules_tbl">
+                        <thead>
+                        <tr>
+                            <th scope="col">Проект</th>
+                            <th scope="col">Значения Departments</th>
+                            <th scope="col">Домен</th>
+                            <th scope="col">Права</th>
+                            <th scope="col"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <div class="form-group row">
+                        <div class="col-sm-10">
+                            <button type="button" id="mla_udpp_save_settings" class="btn btn-primary btn-sm">
+                                Сохранить
+                            </button>
+                        </div>
+                    </div>
+                    <input type="hidden" name="action" value="update_rules_udpp">
+                </form>
             </div>
         </div>
     </div>
@@ -395,15 +405,36 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
                 loading.hide();
             });
 
-        $('#mla_btn_add_new_line_to_project_rules_table').click(function () {
-            mla_config_add_new_line_to_project_rules_table(
+        // Adding new row to udpp tules table
+        $('#mla_udpp_add_new_rule').click(function () {
+            mla_udpp_add_new_rule(
                 window.MLA_PROJECTS_LIST,
-                window.MLA_DOMAINS_LIST, window.MLA_RIGHTS_LIST);
+                window.MLA_DOMAINS_LIST,
+                window.MLA_RIGHTS_LIST
+            );
         });
 
-        $('#mla_tbl_project_rules tbody').on('click', '.mla_delete_row_in_projects_rules_table', function () {
-           $(this).closest('tr').remove();
+        // Deleting the selected row
+        $('#mla_udpp_rules_tbl tbody').on('click', '.mla_udpp_delete_rule', function () {
+            let id = $(this).data('id');
+            if (id > 0) {
+                let form_data = new FormData();
+                form_data.append('rule_id', id);
+                form_data.append('action', 'delete_rule_udpp');
+                mla_post_request(form_data);
+            }
+            $(this).closest('tr').remove();
         });
+
+        // Save udp rules
+        $('#mla_udpp_save_settings').click(function () {
+            let form_data = new FormData($(this).closest("form")[0]);
+            mla_post_request(form_data);
+            mla_udpp_load_rules_table();
+        });
+
+        // Loading udpp rules table
+        mla_udpp_load_rules_table();
 
     </script>
 

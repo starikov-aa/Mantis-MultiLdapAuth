@@ -17,7 +17,7 @@ class MultiLdapAuthPlugin extends MantisPlugin
         $this->description = plugin_lang_get('description');
         $this->page = 'config';
 
-        $this->version = '0.1';
+        $this->version = '0.2';
         $this->requires = array(
             'MantisCore' => '2.3.0-dev',
         );
@@ -65,6 +65,16 @@ class MultiLdapAuthPlugin extends MantisPlugin
 	                default_new_user_project INT NOT NULL",
                     $t_table_options
                 ]
+            ],
+            ['CreateTableSQL',
+                [plugin_table('udpp_rules'),
+                    "id INT NOT NULL AUTOINCREMENT PRIMARY,
+                    project_id INT NOT NULL,
+	                department TEXT NOT NULL,
+	                domain TEXT NOT NULL,
+	                right INT NOT NULL",
+                    $t_table_options
+                ]
             ]
         ];
     }
@@ -84,6 +94,7 @@ class MultiLdapAuthPlugin extends MantisPlugin
         plugin_require_api('core/mla_AuthApi.class.php');
         plugin_require_api('core/mla_LdapApi.class.php');
         plugin_require_api('core/mla_ServerConfig.class.php');
+        plugin_require_api('core/mla_UserDistributionPerProjects.class.php');
     }
 
 
@@ -243,7 +254,8 @@ class MultiLdapAuthPlugin extends MantisPlugin
         }
 
         $mla_AuthApi = new mla_AuthApi(new mla_LdapApi(), new AuthFlags());
-        $t_flags = $mla_AuthApi->set_user_auth_flags($t_username);;
+        $t_flags = $mla_AuthApi->set_user_auth_flags($t_username);
+
         return $t_flags;
 
     }

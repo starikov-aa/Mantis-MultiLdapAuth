@@ -71,12 +71,6 @@ function disable_admin_field() {
     }
 }
 
-function mla_load_server_settings() {
-    $.getJSON(AJAX_URL, {'action': 'get_server_settings'}, function (data) {
-
-    })
-}
-
 /**
  * Sets the value to elements of the specified form
  *
@@ -126,21 +120,26 @@ function mla_post_request(form_data) {
  * @param response server response
  * @param status status (success, error, etc)
  * @param alert_id ID div in which to place the message
+ * @param show_ok show or not the OK message. Default - true
  */
-function parse_server_response(response, status) {
+function parse_server_response(response, status, show_ok = true) {
     if (status == 'success') {
         try {
             let json = JSON.parse(response);
-            if (json['error'] !== '') {
-                display_message(json['error'], 'danger')
+            if (json['status'] == 'error') {
+                display_message(json['msg'] ?? 'Error', 'danger')
+                return null;
             } else {
-                display_message(json['result'], 'success')
+                if (show_ok) display_message(json['msg'] ?? 'OK', 'success')
+                return json['response'];
             }
         } catch (e) {
             display_message('JSON parsing error in server response', 'danger')
+            return null;
         }
     } else {
         display_message('An error occurred while sending your request', 'danger')
+        return null;
     }
 }
 
@@ -166,6 +165,7 @@ function add_select_with_prefixes(prefixes) {
 /**
  * Determine whether the modal window is currently used or not,
  * and depending on this displays a message in the desired div
+ *
  * @param text message text
  * @param severity Possible values: success, danger, info, warning
  * @param msg_block_class_name The name of the DIV class where the message passed in text will be written. Default - message
@@ -186,14 +186,16 @@ function display_message(text, severity = 'success', msg_block_class_name = 'mes
 
 /**
  * Creates a new Select
+ *
  * @param name name
  * @param id id
  * @param classes classes separated by spaces
  * @param data array ([[k=>v]]) from which options will be created
+ * @param selected_value
  * @param is_multiple enable multi-selection
  * return HTML element code
  */
-function mla_create_new_select(name, id = '', classes = '', data = null, is_multiple = false) {
+function mla_create_new_select(name, id = '', classes = '', data = null, selected_value = null, is_multiple = false) {
     let elem = $('<select>', {
         id: id,
         name: name,
@@ -202,7 +204,7 @@ function mla_create_new_select(name, id = '', classes = '', data = null, is_mult
     });
 
     if (data !== null) {
-        elem = mla_add_options_to_select(elem, data);
+        elem = mla_add_options_to_select(elem, data, selected_value);
     }
 
     return elem.prop('outerHTML');
@@ -210,14 +212,19 @@ function mla_create_new_select(name, id = '', classes = '', data = null, is_mult
 
 /**
  * Adding new options to the specified SELECT
+ *
  * @param select_obj JQuery object SELECT
  * @param data array ([[k=>v]]) from which options will be created
+ * @param selected_value
  */
-function mla_add_options_to_select(select_obj, data) {
-    for(let key in data) {
+function mla_add_options_to_select(select_obj, data, selected_value = null) {
+    console.log('selval: ' + selected_value)
+    for (let key in data) {
+        let is_selected = selected_value == key ? true : false;
         select_obj.append($('<option>', {
             value: key,
-            text: data[key]
+            text: data[key],
+            selected: is_selected
         }));
     }
 
@@ -226,21 +233,64 @@ function mla_add_options_to_select(select_obj, data) {
 
 /**
  * Adding a new row to the table with rules for projects
+ *
  * @param project_list array ([[id => name]])
  * @param domain_list array ([[name => name]])
- * @param right_list
+ * @param right_list array ([[id => name]])
+ * @param department filed values Department
+ * @param project_selected the value of the selected in the project list
+ * @param domain_selected the value of the selected in the domain list
+ * @param right_selected the value of the selected in the right list
  */
-function mla_config_add_new_line_to_project_rules_table(project_list, domain_list, right_list) {
-    let projects = mla_create_new_select('projects_list[]', 'projects_list', '', project_list);
-    let domains = mla_create_new_select('domains_list[]', 'domains_list', '', domain_list);
-    let rights = mla_create_new_select('domains_list[]', 'domains_list', '', right_list);
-    $('#mla_tbl_project_rules').find('tbody').append(
+function mla_udpp_add_new_rule(project_list, domain_list, right_list,
+                               rule_id = '-1',
+                               department = '',
+                               project_selected = null,
+                               domain_selected = null,
+                               right_selected = null) {
+
+    let projects = mla_create_new_select('project[]', 'project', '', project_list, project_selected);
+    let domains = mla_create_new_select('domain[]', 'domain', '', domain_list, domain_selected);
+    let rights = mla_create_new_select('rights[]', 'rights', '', right_list, right_selected);
+
+    $('#mla_udpp_rules_tbl').find('tbody').append(
         '<tr>' +
-        '   <td>'+ projects +'</td>' +
-        '   <td><input id="mla_departments_list" name="departments[]"></td>' +
+        '   <td>' + projects + '</td>' +
+        '   <td><input id="mla_departments_list" name="department[]" value="' + department + '"></td>' +
         '   <td>' + domains + '</td>' +
         '   <td>' + rights + '</td>' +
-        '   <td><a href=\'#\' class="mla_delete_row_in_projects_rules_table">❌</a></td>' +
+        '   <td>' +
+        '       <a href="#" class="mla_udpp_delete_rule" data-action="delete_rule" data-id="' + rule_id + '">❌</a>' +
+        '       <input type="hidden" class="rule_id" name="rule_id[]" value="' + rule_id + '">' +
+        '   </td>' +
         '</tr>'
     );
+}
+
+/**
+ * Loading the contents of the rules table
+ */
+function mla_udpp_load_rules_table() {
+    $('#mla_udpp_rules_tbl').find('tr:gt(0)').remove();
+    $.ajax({
+        url: AJAX_URL,
+        type: 'POST',
+        data: {'action': 'get_rule_udpp'},
+        complete: function (response, status) {
+            let dat = parse_server_response(response.responseText, status, false);
+            if (dat == null) return;
+            for (let k in dat){
+                mla_udpp_add_new_rule(
+                    window.MLA_PROJECTS_LIST,
+                    window.MLA_DOMAINS_LIST,
+                    window.MLA_RIGHTS_LIST,
+                    dat[k]['id'],
+                    dat[k]['department'],
+                    dat[k]['project_id'],
+                    dat[k]['domain'],
+                    dat[k]['rights'],
+                );
+            }
+        }
+    });
 }
