@@ -11,7 +11,7 @@ access_ensure_global_level(config_get('manage_site_threshold'));
 const AJAX_STATUS_OK = 'ok';
 const AJAX_STATUS_ERROR = 'error';
 
-$t_id = $_POST['id'] ?? '';
+$t_id = gpc_get('id', '');
 $t_action = gpc_get_string('action', '');
 
 $post_data = $_POST;
