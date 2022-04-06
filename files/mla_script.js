@@ -218,7 +218,6 @@ function mla_create_new_select(name, id = '', classes = '', data = null, selecte
  * @param selected_value
  */
 function mla_add_options_to_select(select_obj, data, selected_value = null) {
-    console.log('selval: ' + selected_value)
     for (let key in data) {
         let is_selected = selected_value == key ? true : false;
         select_obj.append($('<option>', {
@@ -243,7 +242,7 @@ function mla_add_options_to_select(select_obj, data, selected_value = null) {
  * @param right_selected the value of the selected in the right list
  */
 function mla_udpp_add_new_rule(project_list, domain_list, right_list,
-                               rule_id = '-1',
+                               id = '-1',
                                department = '',
                                project_selected = null,
                                domain_selected = null,
@@ -260,8 +259,8 @@ function mla_udpp_add_new_rule(project_list, domain_list, right_list,
         '   <td>' + domains + '</td>' +
         '   <td>' + rights + '</td>' +
         '   <td>' +
-        '       <a href="#" class="mla_udpp_delete_rule" data-action="delete_rule" data-id="' + rule_id + '">❌</a>' +
-        '       <input type="hidden" class="rule_id" name="rule_id[]" value="' + rule_id + '">' +
+        '       <a href="#" class="mla_udpp_delete_rule" data-action="delete_rule" data-id="' + id + '">❌</a>' +
+        '       <input type="hidden" class="id" name="id[]" value="' + id + '">' +
         '   </td>' +
         '</tr>'
     );

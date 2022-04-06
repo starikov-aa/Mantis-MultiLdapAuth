@@ -11,7 +11,7 @@ access_ensure_global_level(config_get('manage_site_threshold'));
 const AJAX_STATUS_OK = 'ok';
 const AJAX_STATUS_ERROR = 'error';
 
-$t_id = gpc_get_int('id', '');
+$t_id = $_POST['id'] ?? '';
 $t_action = gpc_get_string('action', '');
 
 $post_data = $_POST;
@@ -61,14 +61,14 @@ if ($t_action == "update_rules_udpp") {
 }
 
 if ($t_action == "delete_rule_udpp") {
-    if (mla_UserDistributionPerProjects::delete_rules(gpc_get_int('rule_id'))) {
+    if (mla_UserDistributionPerProjects::delete_rule(gpc_get_int('id'))) {
         mla_ajax_response(AJAX_STATUS_OK);
     }
 }
 
 if ($t_action == "get_rule_udpp") {
     $mla_udpp_rules = mla_UserDistributionPerProjects::get_rules();
-    if ($mla_udpp_rules) {
+    if (is_array($mla_udpp_rules)) {
         mla_ajax_response(AJAX_STATUS_OK, $mla_udpp_rules);
     } else {
         mla_ajax_response(AJAX_STATUS_ERROR);
@@ -82,4 +82,26 @@ function mla_ajax_response($status, $data = null, $msg = null)
         'response' => $data,
         'msg' => $msg
     ]);
+}
+
+function get_rules_data()
+{
+    $base_regexp = [
+        'filter' => FILTER_VALIDATE_REGEXP,
+        'options' => ['regexp' => "/^[a-z0-9\.,-]+$/i"]
+    ];
+
+    $int_filter = [
+        'filter' => FILTER_VALIDATE_INT
+    ];
+
+    $args = [
+        'id' => $int_filter,
+        'project' => $int_filter,
+        'department' => $base_regexp,
+        'domain' => $base_regexp,
+        'rights' => $int_filter,
+    ];
+
+    return filter_input_array(INPUT_POST, $args);
 }
