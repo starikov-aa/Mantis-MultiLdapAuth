@@ -68,7 +68,7 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
             <li role="presentation"><a href="#general_settings" aria-controls="profile" role="tab" data-toggle="tab">Общие
                     настройки</a></li>
             <li role="presentation"><a href="#tab_ldap_servers_projects" aria-controls="home" role="tab"
-                                       data-toggle="tab">Проекты</a></li>
+                                       data-toggle="tab">Добавление в проекты</a></li>
         </ul>
 
         <!-- Tab panes -->
@@ -419,7 +419,7 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
             let id = $(this).data('id');
             if (id > 0) {
                 let form_data = new FormData();
-                form_data.append('rule_id', id);
+                form_data.append('id', id);
                 form_data.append('action', 'delete_rule_udpp');
                 mla_post_request(form_data);
             }
@@ -429,12 +429,17 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
         // Save udp rules
         $('#mla_udpp_save_settings').click(function () {
             let form_data = new FormData($(this).closest("form")[0]);
-            mla_post_request(form_data);
+            mla_post_request(form_data, 'mla_update_udpp_rules_table');
+        });
+
+        $(document).on('mla_update_udpp_rules_table', function () {
             mla_udpp_load_rules_table();
         });
 
         // Loading udpp rules table
         mla_udpp_load_rules_table();
+
+
 
     </script>
 

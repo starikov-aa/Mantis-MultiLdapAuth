@@ -100,8 +100,9 @@ function set_form_elem_value(form_id, elem_values) {
  *
  * @param form_data FormData object
  * @param alert_id ID div in which to place the message
+ * @param done_event the event name which will be called in the .done promise
  */
-function mla_post_request(form_data) {
+function mla_post_request(form_data, done_event = null) {
     $.ajax({
         url: AJAX_URL,
         type: 'POST',
@@ -111,7 +112,12 @@ function mla_post_request(form_data) {
         complete: function (response, status) {
             parse_server_response(response.responseText, status);
         }
-    });
+    })
+        .done(function (){
+            if (done_event != null) {
+                $(document).trigger(done_event);
+            }
+        })
 }
 
 /**
