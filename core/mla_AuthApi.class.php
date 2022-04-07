@@ -227,7 +227,7 @@ class mla_AuthApi
 
             $project_name = project_get_name($rule['project_id']);
 
-            if (empty($rule['department'])) break;
+            if (empty($rule['department'])) continue;
 
             if ($rule['department'] == "*") {
                 if ($rule['domain'] == $domain || $rule['domain'] == 'all') {
