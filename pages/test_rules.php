@@ -34,5 +34,5 @@ echo "<pre>";
     echo "<br>";
 
     $t_mla_AuthApi = new mla_AuthApi(new mla_LdapApi(), new AuthFlags());
-    $t_mla_AuthApi->adding_user_to_project_by_department(true);
+    $t_mla_AuthApi->adding_user_to_project_by_department($t_user_id, true);
 //}

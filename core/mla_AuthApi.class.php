@@ -114,7 +114,7 @@ class mla_AuthApi
 
             $t_user_id = user_get_id_by_name($p_username);
 
-            $this->adding_user_to_project_by_department($p_username, $t_user_id);
+            $this->adding_user_to_project_by_department($t_user_id);
 
             return $t_user_id;
         } else {
@@ -213,11 +213,11 @@ class mla_AuthApi
     }
 
     /**
+     * @param int $t_user_id
      * @param bool $debug is true,
      */
-    public function adding_user_to_project_by_department($debug = false): void
+    public function adding_user_to_project_by_department(int $t_user_id, bool $debug = false): void
     {
-        $t_user_id = auth_get_current_user_id();
         $p_username = user_get_username($t_user_id);
 
         $domain = mla_Tools::get_prefix_and_login_from_username($p_username)['prefix'];
