@@ -145,7 +145,7 @@ layout_login_page_begin();
 
                                     <input type="submit"
                                            class="width-40 pull-right btn btn-success btn-inverse bigger-110"
-                                           value="<?php echo lang_get('login') ?>"/>
+                                           value="<?php echo lang_get('login_button') ?>"/>
                                     <div class="clearfix"></div>
                                 </fieldset>
                             </form>
