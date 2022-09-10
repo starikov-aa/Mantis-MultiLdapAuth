@@ -18,6 +18,8 @@ class mla_UserDistributionPerProjects
 
     public function processing($data): bool
     {
+        $data = self::validate_rules_data($data);
+
         for($i=0; $i < count($data['id']); $i++) {
             $rule = [
                 'project' => trim($data['project'][$i]),
@@ -25,6 +27,11 @@ class mla_UserDistributionPerProjects
                 'domain' => trim($data['domain'][$i]),
                 'rights' => trim($data['rights'][$i]),
             ];
+
+            if (is_null($data['project'][$i]) || is_null($data['department'][$i])
+                || is_null($data['domain'][$i]) || is_null($data['rights'][$i])) {
+                continue;
+            }
 
             if (!empty($data['id'][$i]) && $data['id'][$i] > 0) {
                 $this->update_rule($data['id'][$i], $rule);
@@ -93,9 +100,36 @@ class mla_UserDistributionPerProjects
      */
     static function delete_rule($id): bool
     {
+        if (!is_int($id))
+            return false;
+
         $table_name = plugin_table(self::$table_name);
         db_query("DELETE FROM " . $table_name . " WHERE id=" . db_param(), [$id]);
         return true;
+    }
+
+    static function validate_rules_data($data)
+    {
+        $base_regexp = [
+            'filter' => FILTER_VALIDATE_REGEXP,
+            'options' => ['regexp' => "#^[a-z0-9\.,-_&/\*]+$#i"],
+            'flags'  => FILTER_REQUIRE_ARRAY|FILTER_NULL_ON_FAILURE
+        ];
+
+        $int_filter = [
+            'filter' => FILTER_VALIDATE_INT,
+            'flags'  => FILTER_REQUIRE_ARRAY
+        ];
+
+        $args = [
+            'id' => $int_filter,
+            'project' => $int_filter,
+            'department' => $base_regexp,
+            'domain' => $base_regexp,
+            'rights' => $int_filter,
+        ];
+
+        return filter_input_array(INPUT_POST, $args );
     }
 
 }
