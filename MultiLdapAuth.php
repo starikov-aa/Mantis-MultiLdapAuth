@@ -17,7 +17,7 @@ class MultiLdapAuthPlugin extends MantisPlugin
         $this->description = plugin_lang_get('description');
         $this->page = 'config';
 
-        $this->version = '0.2';
+        $this->version = '0.2.1';
         $this->requires = array(
             'MantisCore' => '2.3.0-dev',
         );
@@ -62,7 +62,9 @@ class MultiLdapAuthPlugin extends MantisPlugin
 	                use_ldap_email INT NOT NULL,
 	                use_ldap_realname INT NOT NULL,
 	                autocreate_user INT NOT NULL,
-	                default_new_user_project INT NOT NULL",
+	                default_new_user_project INT NOT NULL,
+                    use_starttls INT NOT NULL,
+	                tls_protocol_min INT NOT NULL",
                     $t_table_options
                 ]
             ],
