@@ -261,7 +261,7 @@ function mla_udpp_add_new_rule(project_list, domain_list, right_list,
     $('#mla_udpp_rules_tbl').find('tbody').append(
         '<tr>' +
         '   <td>' + projects + '</td>' +
-        '   <td><input id="mla_departments_list" name="department[]" value="' + department + '"></td>' +
+        '   <td><input class="mla_departments_list" id="mla_departments_list_' + id + '" name="department[]" value="' + department + '"></td>' +
         '   <td>' + domains + '</td>' +
         '   <td>' + rights + '</td>' +
         '   <td>' +
@@ -298,4 +298,26 @@ function mla_udpp_load_rules_table() {
             }
         }
     });
+}
+
+/**
+ * Adding a block with help text
+ *
+ * @param inputID The ID of the input element to add help text to
+ * @param text Added text
+ */
+function mla_add_input_help_text(inputID, text) {
+    let elem = $('#' + inputID).parent();
+    if (!elem.find('[class="mla_input_help_block"]').length) {
+        elem.append('<div class="mla_input_help_block">' + text + '</div>');
+    }
+}
+
+/**
+ * Removes help text
+ *
+ * @param inputID The ID of the input element whose help text should be removed
+ */
+function mla_del_input_help_text(inputID) {
+    $('#' + inputID).parent().find('[class="mla_input_help_block"]').remove();
 }

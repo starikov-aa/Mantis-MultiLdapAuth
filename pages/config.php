@@ -428,6 +428,10 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
 
         // Save udp rules
         $('#mla_udpp_save_settings').click(function () {
+            if ($('.mla_departments_list.mla_input_invalid').length) {
+                display_message('Одно или несколько полей Departmens заполнено не верно!', 'danger');
+                return;
+            }
             let form_data = new FormData($(this).closest("form")[0]);
             mla_post_request(form_data, 'mla_update_udpp_rules_table');
         });
@@ -439,7 +443,16 @@ $g_user_login_valid_regex = "/(^[a-z\d\-.+_ ]+@[a-z\d\-.]+\.[a-z]{2,4})|(^[a-z\d
         // Loading udpp rules table
         mla_udpp_load_rules_table();
 
-
+        $('#mla_udpp_rules_tbl tbody').on('blur', '.mla_departments_list', function (){
+            let list_td =  $(this).parent();
+            if (!/^[а-яa-z0-9\.,\-_&\\*\\/]+$/i.test(this.value)) {
+                $(this).addClass('mla_input_invalid');
+                mla_add_input_help_text(this.id, 'Разрешенные символы: а-я, a-z, 0-9, \\, /, *, &, -, _, точка, запятая');
+            } else {
+                mla_del_input_help_text(this.id);
+                $(this).removeClass('mla_input_invalid');
+            }
+        });
 
     </script>
 

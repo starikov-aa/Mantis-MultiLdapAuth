@@ -26,8 +26,16 @@
     margin: 20px;
 }
 
-#mla_departments_list {
+.mla_departments_list {
     width: 500px;
+}
+
+.mla_input_invalid {
+    background-color: lightpink;
+}
+
+.mla_input_help_block {
+    font-size: small;
 }
 
 .spinner {
