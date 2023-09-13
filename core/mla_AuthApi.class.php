@@ -221,7 +221,7 @@ class mla_AuthApi
         $p_username = user_get_username($t_user_id);
 
         $domain = mla_Tools::get_prefix_and_login_from_username($p_username)['prefix'];
-        $department = $this->ldap->get_field_from_username($p_username, 'department');
+        $user_department = $this->ldap->get_field_from_username($p_username, 'department');
 
         foreach (mla_UserDistributionPerProjects::get_rules() as $rule) {
 
@@ -234,7 +234,7 @@ class mla_AuthApi
 
                     $this->_log_event(LOG_PLUGIN,
                         sprintf('User: %s, depart: %s, matched with: %s, added to: %s',
-                            $p_username, $department, "*", $project_name));
+                            $p_username, $user_department, "*", $project_name));
 
                     if (!$debug) project_add_user($rule['project_id'], $t_user_id, $rule['rights']);
                 }
@@ -245,13 +245,13 @@ class mla_AuthApi
 
                 $dept = trim($dept);
 
-                if (mb_stripos($department, $dept) !== false) {
+                if (mb_stripos($dept, $user_department) !== false) {
 
                     if ($rule['domain'] == $domain || $rule['domain'] == 'all') {
 
                         $this->_log_event(LOG_PLUGIN,
                             sprintf('User: %s, depart: %s, matched with: %s, added to: %s',
-                                $p_username, $department, $dept, $project_name));
+                                $p_username, $user_department, $dept, $project_name));
 
                         if (!$debug) project_add_user($rule['project_id'], $t_user_id, $rule['rights']);
                     }
