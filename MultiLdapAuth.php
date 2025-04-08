@@ -123,11 +123,13 @@ class MultiLdapAuthPlugin extends MantisPlugin
      */
     function add_html_headers()
     {
+        $resources = "";
+
         // добавляем CSS
-        $resources = '<link rel="stylesheet" type="text/css" href="' . plugin_file('mla_style.css') . '" />';
+        html_css_cdn_link(plugin_file('mla_style.css'));
 
         // добавляем JS функции
-        $resources .= '<script type="text/javascript" src="' . plugin_file('mla_script.js') . '"></script>';
+        html_javascript_cdn_link(plugin_file('mla_script.js'));
 
         // добавляем на страницу логина, селект с префиксами юзернеймов
         // и удаляем из имени пользвателя префикс
@@ -140,7 +142,7 @@ class MultiLdapAuthPlugin extends MantisPlugin
                             })
                             add_select_with_prefixes(\'' . $prefixes . '\')
                         });   
-                   </script>';
+                   </script>' . PHP_EOL;
         }
 
         $resources .= $this->add_js_flags();
@@ -167,7 +169,7 @@ class MultiLdapAuthPlugin extends MantisPlugin
                 $flags['use_ldap_email'] = (int)$ldap_options['use_ldap_email'] ?? OFF;
                 $flags['use_ldap_realname'] = (int)$ldap_options['use_ldap_realname'] ?? OFF;
                 $html = '<script type="text/javascript">window.mla_user_flags=JSON.parse(\'' . json_encode($flags) . '\');</script>';
-                return $html;
+                return "\t" . $html . PHP_EOL;
             }
         }
     }
